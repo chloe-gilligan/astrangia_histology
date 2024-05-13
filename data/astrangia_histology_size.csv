@@ -1,4 +1,4 @@
-﻿full_sample_id,timepoint,date,species,month,site,file.name,series,histo company,scale,units,sex,stage,length,width,total gametes,Notes,
+﻿full_sample_id,timepoint,date,species,month,site,file.name,series,histo company,scale,units,sex,stage,length,width,total_gametes,Notes,
 AST-1237-TP0,TP0,,Astrangia poculata,,,,,,,,,,,,,,
 AST-2024-TP0,TP0,2/25/21,Astrangia poculata,Feburary,,AST-2024-TP0.vsi,14,PP,3.6547,microns,female,1,16.474,8.963,50,,
 AST-2024-TP0,TP0,2/25/21,Astrangia poculata,Feburary,,AST-2024-TP0.vsi,14,PP,3.6547,microns,female,1,10.952,7.182,50,,
