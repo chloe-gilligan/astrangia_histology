@@ -1,118 +1,114 @@
-﻿full_sample_id,timepoint,date,species,month,site,file.name,series,histo company,scale,units,sex,StageI,StageII,StageIII,StageIV,StageV,Total gametes,Notes
-AST-1237-TP0,TP0,,Astrangia poculata,Feburary,,,,,,,,,,,,,,
-AST-2024-TP0,TP0,2/25/21,Astrangia poculata,Feburary,,AST-2024-TP0.vsi,14,PP,3.6547,microns,female,20,25,5,0,0,50,
-AST-1479-TP0,TP0,2/25/21,Astrangia poculata,Feburary,FW,AST-1479-TP0.vsi,14,PP,3.6547,microns,female,46,4,0,0,0,50,"NOT in jill experimental design notebook, Must be AST-1479, previous name was AST-1476-TP0"
-AST-2751-TP0,TP0,2/25/21,Astrangia poculata,Feburary,,AST-2751-TP0.vsi,14,PP,3.6547,microns,female,15,8,1,0,0,24,
-AST-2004-TP0,TP0,2/25/21,Astrangia poculata,Feburary,,AST-2001-TP0.vsi,14,PP,3.6547,microns,NA,0,0,0,0,0,0,Mislabelled
-AST-2305-TP0,TP0,2/25/21,Astrangia poculata,Feburary,,AST-2305-TP0.vsi,14,PP,3.6547,microns,female,13,20,5,0,0,50,
-AST-2868,,,Astrangia poculata,,,,,,,,,,,,,,,
-AST-1069-TP0,TP0,2/25/21,Astrangia poculata,Feburary,,Image_01.vsi,14,PP,3.6547,microns,NA,0,0,0,0,0,0,
-AST-1042-TP2,TP2,4/2/21,Astrangia poculata,April,,AST-1642-TP2.vsi,14,PP,3.6547,microns,NA,0,0,0,0,0,0,
-AST-1461-TP2,TP2,4/2/21,Astrangia poculata,April,FW,AST-1461-TP2.vsi,14,PP,3.6547,microns,male,17,0,0,0,0,17,
-AST-1533-TP2,TP2,4/2/21,Astrangia poculata,April,,AST-1533-TP2.vsi,14,PP,3.6547,microns,male,9,41,0,0,0,50,
-AST-2979-TP2,TP2,4/2/21,Astrangia poculata,April,FW,Image_AST_2979_2.vsi,20,NOVA,3.6547,microns,NA,0,0,0,0,0,0,
-AST-1085-TP2,TP2,4/2/21,Astrangia poculata,April,FW,AST-1085-TP2.vsi,14,PP,3.6547,microns,female,50,0,0,0,0,0,
-AST-1576-TP2,TP2,4/2/21,Astrangia poculata,April,FW,Image_AST_1576_1.vsi,20,NOVA,3.6547,microns,NA,0,0,0,0,0,0,
-AST-2202-TP2,TP2,4/2/21,Astrangia poculata,April,FW,Image_AST_2202.vsi,14,NOVA,7.3049,microns,male,6,0,0,0,0,6,
-AST-2757-TP2,TP2,4/2/21,Astrangia poculata,April,FW,Image_AST_2757_1.vsi,14,NOVA,3.6547,microns,female,7,43,0,0,0,50,
-AST-1311-TP2,TP2,4/2/21,Astrangia poculata,April,FW,AST-1311-TP2.vsi,14,PP,3.6547,microns,female,17,21,0,0,0,38,
-AST-1053-TP2,TP2,4/2/21,Astrangia poculata,April,FW,AST-1053-TP2.vsi,14,PP,3.6547,microns,female,14,36,0,0,0,50,
-AST-1489-TP2,TP2,4/2/21,Astrangia poculata,April,,AST-1489-TP2.vsi,14,PP,3.6547,microns,male,26,10,0,0,0,36,In Jill's notebook and slide data
-AST-1225-TP2,TP2,4/2/21,Astrangia poculata,April,FW,AST-1225-TP2.vsi,14,PP,3.6547,microns,male,50,0,0,0,0,50,
-AST-2399-TP2,TP2,4/2/21,Astrangia poculata,April,,AST-2399-TP2.vsi,14,PP,3.6547,microns,female,16,18,16,0,0,50,
-AST-1197-TP2,TP2,4/2/21,Astrangia poculata,April,,Image_02.vsi,14,PP,3.6547,microns,male,50,0,0,0,0,50,
-AST-2384-TP2,TP2,4/2/21,Astrangia poculata,April,FW,Image_AST_2384_1.vsi,20,NOVA,3.6547,microns,male,13,4,0,0,0,17,
-AST-1448-TP2,TP2,4/2/21,Astrangia poculata,April,FW,A-AST-1448.vsi,14,PP,3.6547,microns,female,16,34,0,0,0,50,Missing AST-1448 from slide data
-AST-1430-TP4,TP4,5/28/21,Astrangia poculata,May,,A-AST-1430-TP4.vsi,14,PP,3.6547,microns,female,0,10,19,21,0,50,
-AST-1557-TP4,TP4,5/28/21,Astrangia poculata,May,FW,Image_AST_1557_1.vsi,20,NOVA,3.6547,microns,male,0,6,0,0,0,6,
-AST-1483-TP4,TP4,5/28/21,Astrangia poculata,May,,AST-1483-TP4.vsi,14,PP,3.6547,microns,male,0,14,36,0,0,50,
-AST-1135-TP4,TP4,5/28/21,Astrangia poculata,May,FW,AST-1135-TP4.vsi,14,PP,3.6547,microns,female,6,6,34,4,0,50,
-AST-1554-TP4,TP4,5/28/21,Astrangia poculata,May,FW,Image_AST_1537_1.vsi,20,NOVA,3.6547,microns,NA,0,0,0,0,0,0,"Previous name could AST-1559-TP4 on boxes and 1537 on slides, putting it as 1554 from here on"
-AST-1440-TP4,TP4,5/28/21,Astrangia poculata,May,FW,Image_AST_1440_2.vsi,20,NOVA,3.6547,microns,NA,0,0,0,0,0,0,
-AST-1238-TP4,TP4,5/28/21,Astrangia poculata,May,FW,A-AST-1238-TP4.vsi,14,PP,3.6547,microns,male,0,11,39,0,0,50,
-AST-1621-TP4,TP4,5/28/21,Astrangia poculata,May,,AST-1621-TP4.vsi,14,PP,3.6547,microns,female,0,2,31,2,0,35,
-AST-2075-TP4,TP4,5/28/21,Astrangia poculata,May,FW,Image_AST_2075_2.vsi,20,NOVA,3.6547,microns,NA,0,0,0,0,0,0,
-AST-1110-TP4,TP4,5/28/21,Astrangia poculata,May,FW,Image_AST_1110.vsi,14,NOVA,7.3049,microns,NA,0,0,0,0,0,0,
-AST-2976-TP4,TP4,,Astrangia poculata,May,,,,,,,,,,,,,,Wasn't scanned
-AST-1205-TP4,TP4,5/28/21,Astrangia poculata,May,FW,AST-1205-TP4.vsi,14,PP,3.6547,microns,female,8,0,0,0,0,8,
-AST-1122-TP4,TP4,5/28/21,Astrangia poculata,May,,AST-1122-TP4.vsi,14,PP,3.6547,microns,male,15,20,15,0,0,50,
-AST-1470-TP4,TP4,5/28/21,Astrangia poculata,May,,AST-1470-TP4.vsi,37,PP,3.6547,microns,male,0,0,13,8,7,28,Great photos of stage 5 and also transformation between stage 3 and 4
-AST-2730,,,Astrangia poculata,,,,,,,,,,,,,,,Missing but in Jill notebook 2730
-AST-1071,TP4,5/28/21,Astrangia poculata,May,FW,Image_AST_1071_1.vsi,20,NOVA,3.6524,microns,female,0,0,3,0,0,4,Missing but in Jill Notebook 1071
-AST-1170-TP6,TP6,7/23/21,Astrangia poculata,Juy,FW,Image_AST_1170_2.vsi,20,NOVA,3.6524,microns,NA,0,0,0,0,0,0,
-AST-2552-TP6,TP6,7/23/21,Astrangia poculata,July,,Image_AST_2552.vsi,20,NOVA,7.3049,microns,NA,0,0,0,0,0,0,On slide info but not tank info
-AST-1191-TP6,TP6,7/23/21,Astrangia poculata,Juy,FW,AST-1191-TP7,14,PP,3.6524,microns,NA,0,0,0,0,0,0,
-AST-1466-TP6,TP6,7/23/21,Astrangia poculata,July,FW,Image_AST_1466_1.vsi,20,NOVA,3.6524,microns,NA,0,0,0,0,0,0,
-AST-1541-TP6,TP6,7/23/21,Astrangia poculata,July,FW,Image_AST_1541_2.vsi,20,NOVA,3.6524,microns,NA,0,0,0,0,0,0,
-AST-1636-TP6,TP6,7/23/21,Astrangia poculata,July,FW,Image_AST_1636.vsi,14,NOVA,7.3049,microns,female,0,0,0,50,,50,
-AST-2566-TP6,TP6,7/23/21,Astrangia poculata,Juy,FW,Image_AST_2566_2.vsi,20,NOVA,3.6524,microns,NA,0,0,0,0,0,0,
-AST-1187-TP6,TP6,7/23/21,Astrangia poculata,July,FW,AST-1187-TP6.vsi,14,PP,3.6524,microns,female,0,0,1,0,0,1,
-AST-1141-TP7,TP7,8/25/21,Astrangia poculata,August,ENDV,Image_AST_1141_2.vsi,20,NOVA,3.6525,microns,NA,0,0,0,0,0,0,Exists on tank data and in boxes
-AST-1204-TP7,TP7,8/25/21,Astrangia poculata,August,ENDV,Image_AST_1204_1.vsi,20,NOVA,3.6525,microns,NA,0,0,0,0,0,0,All slides except AST_1204_2 series 22 scanned very very weird
-AST-2279-TP7,TP7,8/25/21,Astrangia poculata,August,,A-AST-2279-TP7.vsi,14,PP,3.6547,microns,NA,0,0,0,0,0,0,
-AST-1242-TP7,TP7,8/25/21,Astrangia poculata,August,ENDV,Image_AST_2372_2.vsi,20,NOVA,3.6525,microns,NA,0,0,0,0,0,0,
-AST-2372-TP7,TP7,8/25/21,Astrangia poculata,August,ENDV,Image_AST_2372.vsi,20,NOVA,7.3049,microns,NA,0,0,0,0,0,0,
-AST-1043-TP7,TP7,8/25/21,Astrangia poculata,August,ENDV,A-AST-1043-TP7.vsi,14,PP,3.6525,microns,NA,0,0,0,0,0,0,
-AST-2290-TP7,TP7,8/25/21,Astrangia poculata,August,ENDV,Image_AST_2290_2.vsi,20,NOVA,3.6525,microns,NA,0,0,0,0,0,0,
-AST-1247-TP7,TP7,8/25/21,Astrangia poculata,August,ENDV,Image_AST_1247_2.vsi,20,NOVA,3.6525,microns,NA,0,0,0,0,0,0,
-_FLD-10-TP2_,TP2,4/11/21,Astrangia poculata,April,,Image_FLD_10_TP2.vsi,20,NOVA,7.3049,microns,NA,0,0,0,0,0,0,Slide from Pacific pathology may have some gametes
-_FLD-4-TP2_,TP2,4/11/21,Astrangia poculata,April,,FLD-4-TP2.vsi,14,PP,3.6547,microns,female,14,13,18,0,0,50,
-_FLD-1-TP2_,TP2,4/11/21,Astrangia poculata,April,,FLD-1-TP2.vsi,56,PP,3.6548,microns,male,50,0,0,0,0,50,
-_FLD-5-TP2_,TP2,4/11/21,Astrangia poculata,April,,FLD-5-TP2.vsi,14,PP,3.6547,microns,female,3,19,28,0,0,50,
-_FLD-6-TP2_,TP2,4/11/21,Astrangia poculata,April,,FLD-6-TP2.vsi,14,PP,3.6547,microns,female,8,14,38,0,0,50,
-_FLD-2-TP2_,TP2,4/11/21,Astrangia poculata,April,,FLD-2-TP2.vsi,14,PP,3.6547,microns,female,NA,0,0,0,0,0,
-_FLD-11-TP2_,TP2,4/11/21,Astrangia poculata,April,,FLD-11-TP2.vsi,14,PP,3.6525,microns,male,7,6,0,0,0,13,
-_FLD-3-TP2_,TP2,4/11/21,Astrangia poculata,April,,FLD-3-TP2.vsi,14,PP,3.6547,microns,male,18,23,2,0,0,43,
-_FLD-7-TP2_,TP2,4/11/21,Astrangia poculata,April,,FLD-7-TP2.vsi,14,PP,3.6547,microns,NA,0,0,0,0,0,0,
-_FLD-8-TP2_,TP2,4/11/21,Astrangia poculata,April,,FLD-8-TP2.vsi,14,PP,3.6547,microns,female,7,33,10,0,0,50,
-_FLD-9-TP2_,TP2,4/11/21,Astrangia poculata,April,,Image_FLD_9_TP2.vsi,14,NOVA,7.3049,microns,female,0,20,6,0,0,26,
-_FLD-7-TP3_,TP3,4/29/21,Astrangia poculata,April,,FLD-7-TP3.vsi,14,PP,3.6547,microns,male,7,8,0,0,0,15,
-_FLD-11-TP3_,TP3,4/29/21,Astrangia poculata,April,,FLD-11-TP3.vsi,14,PP,3.6547,microns,female,0,14,36,0,0,50,
-_FLD-10-TP3_,TP3,4/29/21,Astrangia poculata,,,FLD-10-TP3.vsi,14,PP,3.6525,microns,female,0,11,16,0,0,27,
-_FLD-8-TP3_,TP3,4/29/21,Astrangia poculata,April,,FLD-8-TP3.vsi,14,PP,3.6547,microns,female,2,2,0,0,0,4,
-_FLD-12-TP3_,TP3,4/29/21,Astrangia poculata,,,FLD-12-TP3.vsi,14,PP,3.6525,microns,NA,0,0,0,0,0,0,
-_FLD-13-TP3_,TP3,4/29/21,Astrangia poculata,April,,FLD-13-TP3.vsi,14,PP,3.6547,microns,female,4,8,1,0,0,13,
-_FLD-4-TP3_,TP3,4/29/21,Astrangia poculata,,,FLD-4-TP3.vsi,14,PP,3.6547,microns,NA,0,0,0,0,0,0,
-_FLD-2-TP3_,TP3,4/29/21,Astrangia poculata,,,FLD-2-TP3.vsi,14,PP,3.6547,microns,NA,0,0,0,0,0,0,
-_FLD-3-TP3_,TP3,4/29/21,Astrangia poculata,,,FLD-3-TP3.vsi,14,PP,3.6547,microns,female,3,23,12,0,0,33,
-_FLD-9-TP3_,TP3,4/29/21,Astrangia poculata,April,,FLD-9-TP3.vsi,14,PP,3.6547,microns,female,23,21,6,0,0,50,
-_FLD-1_TP3_,TP3,4/29/21,Astrangia poculata,,,FLD-1-TP3,22,PP,3.6547,microns,male,10,9,0,0,0,19,
-_FLD-5-TP3_,TP3,4/29/21,Astrangia poculata,April,,FLD-5-TP3.vsi,14,PP,3.6547,microns,female,18,32,0,0,0,50,
-_01FLD-3-TP4_,TP4,6/4/21,Astrangia poculata,,,01FLD-3-TP4.vsi,14,PP,3.6547,microns,female,3,17,26,4,0,50,
-_FLD-1-TP4_,TP4,6/4/21,Astrangia poculata,,,FLD-1-TP4.vsi,19,PP,3.6547,microns,female,3,13,33,2,0,50,
-_FLD-5-TP4_,TP4,6/4/21,Astrangia poculata,,,Image_FLD_5_TP4_1.vsi,14,NOVA,3.6525,microns,female,0,30,9,0,0,39,
-_FLD-2_TP4_,TP4,6/4/21,Astrangia poculata,,,Image_training.vsi,14,PP,3.6547,microns,male,0,34,16,0,0,50,
-_FLD-3-TP4_,TP4,6/4/21,Astrangia poculata,,,FLD-3-TP4.vsi,22,PP,3.6547,microns,male,0,38,12,0,0,50,
-_AST-FLD-TP4_,TP4,6/4/21,Astrangia poculata,,,AST-FLD-TP4.vsi,14,PP,3.6547,microns,female,9,33,8,0,0,50,
-_FLD-4-TP4-1_,TP4-1,6/4/21,Astrangia poculata,June,,Image_FLD_4_TP4.vsi,14,NOVA,7.3049,microns,female,0,32,18,0,0,50,Labelled FLD_4_TP4 but just no 1 and 2 from NOVA
-_FLD-6-TP4-1_,TP4-1,6/4/21,Astrangia poculata,June,,Image_FLD_6_TP4.vsi,14,NOVA,7.3049,microns,female,5,35,10,0,0,50,Labelled FLD_6_TP4 but just no 1 and 2 from NOVA
-_FLD-11-TP5_,TP5,6/26/21,Astrangia poculata,,,01FLD-11-TP5.vsi,,PP,3.6525,microns,male,0,16,17,17,0,50,
-_FLD-1_TP5_,TP5,6/26/21,Astrangia poculata,,,Image_04.vsi,20,PP,3.6525,microns,NA,0,0,0,0,0,0,
-_FLD-2_TP5_,TP5,6/26/21,Astrangia poculata,,,Image.vsi,44,PP,3.6547,microns,male,0,0,26,24,0,50,
-_FLD-10-TP5_,TP5,6/26/21,Astrangia poculata,,,FLD-10-TP5.vsi,14,PP,3.6525,microns,female,0,9,16,25,0,50,
-_FLD-3-TP5_,TP5,6/26/21,Astrangia poculata,,,FLD-3-TP5.vsi,26,PP,3.6547,microns,male,0,17,23,10,0,50,
-_FLD-7-TP5_,TP5,6/26/21,Astrangia poculata,June,,FLD-7-TP5.vsi,14,PP,3.6547,microns,female,0,9,0,0,0,9,
-_FLD-6-TP5_,TP5,6/26/21,Astrangia poculata,,,FLD-6-TP5.vsi,14,PP,3.6547,microns,female,0,10,32,3,0,50,
-_FLD-TP5_,TP5,6/26/21,Astrangia poculata,June,,FLD-TP5.vsi,14,PP,3.6547,microns,NA,0,0,0,0,0,0,
-_FLD-4-TP5_,TP5,6/26/21,Astrangia poculata,June,,FLD-4-TP5.vsi,14,PP,3.6547,microns,female,0,7,24,19,0,50,
-_FLD-5-TP5_,TP5,6/26/21,Astrangia poculata,June,,FLD-5-TP5.vsi,14,PP,3.6547,microns,female,0,6,29,15,0,50,
-_FLD-1-TP6_,TP5,7/24/21,Astrangia poculata,,,FLD-1-TP6.vsi,14,PP,3.6547,microns,female,2,5,11,32,0,50,
-_FLD-4-TP6_,TP6,7/24/21,Astrangia poculata,,,FLD-4-TP6.vsi,14,PP,3.6547,microns,male,0,10,18,21,1,50,
-_FLD-2-TP6_,TP6,7/24/21,Astrangia poculata,,,FLD-2-TP6.vsi,14,PP,3.6547,microns,female,0,0,21,27,2,50,
-_FLD-1-TP6_,TP6,7/24/21,Astrangia poculata,,,FLD-1-TP6.vsi,14,PP,3.6547,microns,male,0,0,12,32,6,50,great photo of stage 5
-_FLD-5-TP6_,TP6,7/24/21,Astrangia poculata,July,,FLD-5-TP6.vsi,14,PP,3.6547,microns,female,0,0,7,42,0,50,
-_FLD-3_TP6_,TP6,7/24/21,Astrangia poculata,,,FLD-3_TP6.vsi,14,PP,3.6547,microns,male,0,0,23,20,7,50,
-_FLD-2-TP6_,TP6,7/24/21,Astrangia poculata,,,FLD-2-TP6.vsi,14,PP,3.6547,microns,female,0,0,16,34,0,50,
-_FLD-1-TP7_,TP7,9/2/21,Astrangia poculata,September,,FLD-1-TP7.vsi,14,PP,3.6547,microns,male,12,32,6,0,0,50,
-_FLD-2-TP7_,TP7,9/2/21,Astrangia poculata,September,,FLD-2-TP7.vsi,14,PP,3.6547,microns,male,0,22,4,8,1,35,
-_FLD-3-TP7_,TP7,9/2/21,Astrangia poculata,September,,Image_FLD_3-_TP7.vsi,20,NOVA,7.3049,microns,NA,0,0,0,0,0,0,
-_FLD-4-TP7_,TP7,,Astrangia poculata,,,,,,,,,,,,,,,
-_FLD-5-TP7_,TP7,9/2/21,Astrangia poculata,September,,FLD-5-TP7.vsi,14,PP,3.6547,microns,female,6,5,3,36,0,50,
-_FLD-6-TP7_,TP7,9/2/21,Astrangia poculata,September,,FLD-6-TP7.vsi,14,PP,3.6547,microns,male,10,14,14,3,2,43,
-_FLD-7-TP7_,TP7,9/2/21,Astrangia poculata,September,,FLD-7-TP7.vsi,14,PP,3.6547,microns,NA,0,0,0,0,0,0,
-_FLD-8-TP7_,TP7,9/2/21,Astrangia poculata,September,,FLD-8-TP7.vsi,14,PP,3.6547,microns,male,0,0,6,30,19,50,
-_FLD-9-TP7_,TP7,9/2/21,Astrangia poculata,September,,Image_FLD_9_TP7_1.vsi,14,NOVA,3.6525,microns,female,0,0,0,7,3,10,
-,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,
+﻿full_sample_id,timepoint,date,species,month,site,file.name,series,histo company,scale,units,sex,StageI,StageII,StageIII,StageIV,StageV,Total gametes,Notes,
+AST-1237-TP0,TP0,,Astrangia poculata,Feburary,,,,,,,,,,,,,,,
+AST-2024-TP0,TP0,2/25/21,Astrangia poculata,Feburary,,AST-2024-TP0.vsi,14,PP,3.6547,microns,female,20,25,5,0,0,50,,50
+AST-1479-TP0,TP0,2/25/21,Astrangia poculata,Feburary,FW,AST-1479-TP0.vsi,14,PP,3.6547,microns,female,46,4,0,0,0,50,"NOT in jill experimental design notebook, Must be AST-1479, previous name was AST-1476-TP0",50
+AST-2751-TP0,TP0,2/25/21,Astrangia poculata,Feburary,,AST-2751-TP0.vsi,14,PP,3.6547,microns,female,15,8,1,0,0,24,,24
+AST-2004-TP0,TP0,2/25/21,Astrangia poculata,Feburary,,AST-2001-TP0.vsi,14,PP,3.6547,microns,NA,0,0,0,0,0,0,Mislabelled,0
+AST-2305-TP0,TP0,2/25/21,Astrangia poculata,Feburary,,AST-2305-TP0.vsi,14,PP,3.6547,microns,female,27,23,0,0,0,50,,50
+AST-2868,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,,0
+AST-1069-TP0,TP0,2/25/21,Astrangia poculata,Feburary,,Image_01.vsi,14,PP,3.6547,microns,NA,0,0,0,0,0,0,,0
+AST-1042-TP2,TP2,4/2/21,Astrangia poculata,April,,AST-1642-TP2.vsi,14,PP,3.6547,microns,NA,0,0,0,0,0,0,,0
+AST-1461-TP2,TP2,4/2/21,Astrangia poculata,April,FW,AST-1461-TP2.vsi,14,PP,3.6547,microns,male,17,0,0,0,0,17,,17
+AST-1533-TP2,TP2,4/2/21,Astrangia poculata,April,,AST-1533-TP2.vsi,14,PP,3.6547,microns,male,9,41,0,0,0,50,,50
+AST-2979-TP2,TP2,4/2/21,Astrangia poculata,April,FW,Image_AST_2979_2.vsi,20,NOVA,3.6547,microns,NA,0,0,0,0,0,0,,0
+AST-1085-TP2,TP2,4/2/21,Astrangia poculata,April,FW,AST-1085-TP2.vsi,14,PP,3.6547,microns,female,50,0,0,0,0,0,,50
+AST-1576-TP2,TP2,4/2/21,Astrangia poculata,April,FW,Image_AST_1576_1.vsi,20,NOVA,3.6547,microns,NA,0,0,0,0,0,0,,0
+AST-2202-TP2,TP2,4/2/21,Astrangia poculata,April,FW,Image_AST_2202.vsi,14,NOVA,7.3049,microns,male,6,0,0,0,0,6,,6
+AST-2757-TP2,TP2,4/2/21,Astrangia poculata,April,FW,Image_AST_2757_1.vsi,14,NOVA,3.6547,microns,female,7,43,0,0,0,50,,50
+AST-1311-TP2,TP2,4/2/21,Astrangia poculata,April,FW,AST-1311-TP2.vsi,14,PP,3.6547,microns,female,17,21,0,0,0,38,,38
+AST-1053-TP2,TP2,4/2/21,Astrangia poculata,April,FW,AST-1053-TP2.vsi,14,PP,3.6547,microns,female,14,36,0,0,0,50,,50
+AST-1489-TP2,TP2,4/2/21,Astrangia poculata,April,,AST-1489-TP2.vsi,14,PP,3.6547,microns,male,26,10,0,0,0,36,In Jill's notebook and slide data,36
+AST-1225-TP2,TP2,4/2/21,Astrangia poculata,April,FW,AST-1225-TP2.vsi,14,PP,3.6547,microns,male,50,0,0,0,0,50,,50
+AST-2399-TP2,TP2,4/2/21,Astrangia poculata,April,,AST-2399-TP2.vsi,14,PP,3.6547,microns,female,16,18,16,0,0,50,,50
+AST-1197-TP2,TP2,4/2/21,Astrangia poculata,April,,Image_02.vsi,14,PP,3.6547,microns,male,50,0,0,0,0,50,,50
+AST-2384-TP2,TP2,4/2/21,Astrangia poculata,April,FW,Image_AST_2384_1.vsi,20,NOVA,3.6547,microns,male,13,4,0,0,0,17,,17
+AST-1448-TP2,TP2,4/2/21,Astrangia poculata,April,FW,A-AST-1448.vsi,14,PP,3.6547,microns,female,16,34,0,0,0,50,Missing AST-1448 from slide data,50
+AST-1430-TP4,TP4,5/28/21,Astrangia poculata,May,,A-AST-1430-TP4.vsi,14,PP,3.6547,microns,female,0,10,19,21,0,50,,50
+AST-1557-TP4,TP4,5/28/21,Astrangia poculata,May,FW,Image_AST_1557_1.vsi,20,NOVA,3.6547,microns,male,0,6,0,0,0,6,,6
+AST-1483-TP4,TP4,5/28/21,Astrangia poculata,May,,AST-1483-TP4.vsi,14,PP,3.6547,microns,male,0,14,36,0,0,50,,50
+AST-1135-TP4,TP4,5/28/21,Astrangia poculata,May,FW,AST-1135-TP4.vsi,14,PP,3.6547,microns,female,6,6,34,4,0,50,,50
+AST-1554-TP4,TP4,5/28/21,Astrangia poculata,May,FW,Image_AST_1537_1.vsi,20,NOVA,3.6547,microns,NA,0,0,0,0,0,0,"Previous name could AST-1559-TP4 on boxes and 1537 on slides, putting it as 1554 from here on",0
+AST-1440-TP4,TP4,5/28/21,Astrangia poculata,May,FW,Image_AST_1440_2.vsi,20,NOVA,3.6547,microns,NA,0,0,0,0,0,0,,0
+AST-1238-TP4,TP4,5/28/21,Astrangia poculata,May,FW,A-AST-1238-TP4.vsi,14,PP,3.6547,microns,male,0,11,39,0,0,50,,50
+AST-1621-TP4,TP4,5/28/21,Astrangia poculata,May,,AST-1621-TP4.vsi,14,PP,3.6547,microns,female,0,2,31,2,0,35,,35
+AST-2075-TP4,TP4,5/28/21,Astrangia poculata,May,FW,Image_AST_2075_2.vsi,20,NOVA,3.6547,microns,NA,0,0,0,0,0,0,,0
+AST-1110-TP4,TP4,5/28/21,Astrangia poculata,May,FW,Image_AST_1110.vsi,14,NOVA,7.3049,microns,NA,0,0,0,0,0,0,,0
+AST-2976-TP4,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,Wasn't scanned,0
+AST-1205-TP4,TP4,5/28/21,Astrangia poculata,May,FW,AST-1205-TP4.vsi,14,PP,3.6547,microns,female,8,0,0,0,0,8,,8
+AST-1122-TP4,TP4,5/28/21,Astrangia poculata,May,,AST-1122-TP4.vsi,14,PP,3.6547,microns,male,15,20,15,0,0,50,,50
+AST-1470-TP4,TP4,5/28/21,Astrangia poculata,May,,AST-1470-TP4.vsi,37,PP,3.6547,microns,male,0,0,13,8,7,28,Great photos of stage 5 and also transformation between stage 3 and 4,28
+AST-2730,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,Missing but in Jill notebook 2730,0
+AST-1071,TP4,5/28/21,Astrangia poculata,May,FW,Image_AST_1071_1.vsi,20,NOVA,3.6524,microns,female,0,0,3,0,0,4,Missing but in Jill Notebook 1071,3
+AST-1170-TP6,TP6,7/23/21,Astrangia poculata,Juy,FW,Image_AST_1170_2.vsi,20,NOVA,3.6524,microns,NA,0,0,0,0,0,0,,0
+AST-2552-TP6,TP6,7/23/21,Astrangia poculata,July,,Image_AST_2552.vsi,20,NOVA,7.3049,microns,NA,0,0,0,0,0,0,On slide info but not tank info,0
+AST-1191-TP6,TP6,7/23/21,Astrangia poculata,Juy,FW,AST-1191-TP7,14,PP,3.6524,microns,NA,0,0,0,0,0,0,,0
+AST-1466-TP6,TP6,7/23/21,Astrangia poculata,July,FW,Image_AST_1466_1.vsi,20,NOVA,3.6524,microns,NA,0,0,0,0,0,0,,0
+AST-1541-TP6,TP6,7/23/21,Astrangia poculata,July,FW,Image_AST_1541_2.vsi,20,NOVA,3.6524,microns,NA,0,0,0,0,0,0,,0
+AST-1636-TP6,TP6,7/23/21,Astrangia poculata,July,FW,Image_AST_1636.vsi,14,NOVA,7.3049,microns,female,0,0,0,50,,50,,50
+AST-2566-TP6,TP6,7/23/21,Astrangia poculata,Juy,FW,Image_AST_2566_2.vsi,20,NOVA,3.6524,microns,NA,0,0,0,0,0,0,,0
+AST-1187-TP6,TP6,7/23/21,Astrangia poculata,July,FW,AST-1187-TP6.vsi,14,PP,3.6524,microns,female,0,0,1,0,0,1,,1
+AST-1141-TP7,TP7,8/25/21,Astrangia poculata,August,ENDV,Image_AST_1141_2.vsi,20,NOVA,3.6525,microns,NA,0,0,0,0,0,0,Exists on tank data and in boxes,0
+AST-1204-TP7,TP7,8/25/21,Astrangia poculata,August,ENDV,Image_AST_1204_1.vsi,20,NOVA,3.6525,microns,NA,0,0,0,0,0,0,All slides except AST_1204_2 series 22 scanned very very weird,0
+AST-2279-TP7,TP7,8/25/21,Astrangia poculata,August,,A-AST-2279-TP7.vsi,14,PP,3.6547,microns,NA,0,0,0,0,0,0,,0
+AST-1242-TP7,TP7,8/25/21,Astrangia poculata,August,ENDV,Image_AST_2372_2.vsi,20,NOVA,3.6525,microns,NA,0,0,0,0,0,0,,0
+AST-2372-TP7,TP7,8/25/21,Astrangia poculata,August,ENDV,Image_AST_2372.vsi,20,NOVA,7.3049,microns,NA,0,0,0,0,0,0,,0
+AST-1043-TP7,TP7,8/25/21,Astrangia poculata,August,ENDV,A-AST-1043-TP7.vsi,14,PP,3.6525,microns,NA,0,0,0,0,0,0,,0
+AST-2290-TP7,TP7,8/25/21,Astrangia poculata,August,ENDV,Image_AST_2290_2.vsi,20,NOVA,3.6525,microns,NA,0,0,0,0,0,0,,0
+AST-1247-TP7,TP7,8/25/21,Astrangia poculata,August,ENDV,Image_AST_1247_2.vsi,20,NOVA,3.6525,microns,NA,0,0,0,0,0,0,,0
+_FLD-10-TP2_,TP2,4/11/21,Astrangia poculata,April,,Image_FLD_10_TP2.vsi,20,NOVA,7.3049,microns,NA,0,0,0,0,0,0,Slide from Pacific pathology may have some gametes,0
+_FLD-4-TP2_,TP2,4/11/21,Astrangia poculata,April,,FLD-4-TP2.vsi,14,PP,3.6547,microns,female,16,15,19,0,0,50,,50
+_FLD-1-TP2_,TP2,4/11/21,Astrangia poculata,April,,FLD-1-TP2.vsi,56,PP,3.6548,microns,male,50,0,0,0,0,50,,50
+_FLD-5-TP2_,TP2,4/11/21,Astrangia poculata,April,,FLD-5-TP2.vsi,14,PP,3.6547,microns,female,3,19,28,0,0,50,,50
+_FLD-6-TP2_,TP2,4/11/21,Astrangia poculata,April,,FLD-6-TP2.vsi,14,PP,3.6547,microns,female,8,12,30,0,0,50,,50
+_FLD-2-TP2_,TP2,4/11/21,Astrangia poculata,April,,FLD-2-TP2.vsi,14,PP,3.6547,microns,female,NA,0,0,0,0,0,,0
+_FLD-11-TP2_,TP2,4/11/21,Astrangia poculata,April,,FLD-11-TP2.vsi,14,PP,3.6525,microns,male,7,6,0,0,0,13,,13
+_FLD-3-TP2_,TP2,4/11/21,Astrangia poculata,April,,FLD-3-TP2.vsi,14,PP,3.6547,microns,male,18,23,2,0,0,43,,43
+_FLD-7-TP2_,TP2,4/11/21,Astrangia poculata,April,,FLD-7-TP2.vsi,14,PP,3.6547,microns,NA,0,0,0,0,0,0,,0
+_FLD-8-TP2_,TP2,4/11/21,Astrangia poculata,April,,FLD-8-TP2.vsi,14,PP,3.6547,microns,female,7,33,10,0,0,50,,50
+_FLD-9-TP2_,TP2,4/11/21,Astrangia poculata,April,,Image_FLD_9_TP2.vsi,14,NOVA,7.3049,microns,female,0,20,6,0,0,26,,26
+_FLD-7-TP3_,TP3,4/29/21,Astrangia poculata,April,,FLD-7-TP3.vsi,14,PP,3.6547,microns,male,7,8,0,0,0,15,,15
+_FLD-11-TP3_,TP3,4/29/21,Astrangia poculata,April,,FLD-11-TP3.vsi,14,PP,3.6547,microns,female,0,14,36,0,0,50,,50
+_FLD-10-TP3_,TP3,4/29/21,Astrangia poculata,April,,FLD-10-TP3.vsi,14,PP,3.6525,microns,female,0,11,16,0,0,27,,27
+_FLD-8-TP3_,TP3,4/29/21,Astrangia poculata,April,,FLD-8-TP3.vsi,14,PP,3.6547,microns,female,2,2,0,0,0,4,,4
+_FLD-12-TP3_,TP3,4/29/21,Astrangia poculata,April,,FLD-12-TP3.vsi,14,PP,3.6525,microns,NA,0,0,0,0,0,0,,0
+_FLD-13-TP3_,TP3,4/29/21,Astrangia poculata,April,,FLD-13-TP3.vsi,14,PP,3.6547,microns,female,4,8,1,0,0,13,,13
+_FLD-4-TP3_,TP3,4/29/21,Astrangia poculata,April,,FLD-4-TP3.vsi,14,PP,3.6547,microns,NA,0,0,0,0,0,0,,0
+_FLD-2-TP3_,TP3,4/29/21,Astrangia poculata,April,,FLD-2-TP3.vsi,14,PP,3.6547,microns,NA,0,0,0,0,0,0,,0
+_FLD-3-TP3_,TP3,4/29/21,Astrangia poculata,April,,FLD-3-TP3.vsi,14,PP,3.6547,microns,female,3,22,8,0,0,33,,33
+_FLD-9-TP3_,TP3,4/29/21,Astrangia poculata,April,,FLD-9-TP3.vsi,14,PP,3.6547,microns,female,23,21,6,0,0,50,,50
+_FLD-1_TP3_,TP3,4/29/21,Astrangia poculata,April,,FLD-1-TP3,22,PP,3.6547,microns,male,10,9,0,0,0,19,,19
+_FLD-5-TP3_,TP3,4/29/21,Astrangia poculata,April,,FLD-5-TP3.vsi,14,PP,3.6547,microns,female,18,32,0,0,0,50,,50
+_01FLD-3-TP4_,TP4,6/4/21,Astrangia poculata,June,,01FLD-3-TP4.vsi,14,PP,3.6547,microns,female,3,17,26,4,0,50,,50
+_FLD-1-TP4_,TP4,6/4/21,Astrangia poculata,June,,FLD-1-TP4.vsi,19,PP,3.6547,microns,female,3,13,32,2,0,50,,50
+_FLD-5-TP4_,TP4,6/4/21,Astrangia poculata,June,,Image_FLD_5_TP4_1.vsi,14,NOVA,3.6525,microns,female,0,30,9,0,0,39,,39
+_FLD-2_TP4_,TP4,6/4/21,Astrangia poculata,June,,Image_training.vsi,14,PP,3.6547,microns,male,0,34,16,0,0,50,,50
+_FLD-3-TP4_,TP4,6/4/21,Astrangia poculata,June,,FLD-3-TP4.vsi,22,PP,3.6547,microns,male,0,38,12,0,0,50,,50
+_AST-FLD-TP4_,TP4,6/4/21,Astrangia poculata,June,,AST-FLD-TP4.vsi,14,PP,3.6547,microns,female,9,33,8,0,0,50,,50
+_FLD-4-TP4-1_,TP4-1,6/4/21,Astrangia poculata,June,,Image_FLD_4_TP4.vsi,14,NOVA,7.3049,microns,female,0,32,18,0,0,50,Labelled FLD_4_TP4 but just no 1 and 2 from NOVA,50
+_FLD-6-TP4-1_,TP4-1,6/4/21,Astrangia poculata,June,,Image_FLD_6_TP4.vsi,14,NOVA,7.3049,microns,female,5,35,10,0,0,50,Labelled FLD_6_TP4 but just no 1 and 2 from NOVA,50
+_FLD-11-TP5_,TP5,6/26/21,Astrangia poculata,June,,01FLD-11-TP5.vsi,,PP,3.6525,microns,male,0,16,17,17,0,50,,50
+_FLD-1_TP5_,TP5,6/26/21,Astrangia poculata,June,,Image_04.vsi,20,PP,3.6525,microns,NA,0,0,0,0,0,0,,0
+_FLD-2_TP5_,TP5,6/26/21,Astrangia poculata,June,,Image.vsi,44,PP,3.6547,microns,male,0,0,26,24,0,50,,50
+_FLD-10-TP5_,TP5,6/26/21,Astrangia poculata,June,,FLD-10-TP5.vsi,14,PP,3.6525,microns,female,0,9,16,25,0,50,,50
+_FLD-3-TP5_,TP5,6/26/21,Astrangia poculata,June,,FLD-3-TP5.vsi,26,PP,3.6547,microns,male,0,17,23,10,0,50,,50
+_FLD-7-TP5_,TP5,6/26/21,Astrangia poculata,June,,FLD-7-TP5.vsi,14,PP,3.6547,microns,female,0,9,0,0,0,9,,9
+_FLD-6-TP5_,TP5,6/26/21,Astrangia poculata,June,,FLD-6-TP5.vsi,14,PP,3.6547,microns,female,0,10,37,3,0,50,,50
+_FLD-TP5_,TP5,6/26/21,Astrangia poculata,June,,FLD-TP5.vsi,14,PP,3.6547,microns,NA,0,0,0,0,0,0,,0
+_FLD-4-TP5_,TP5,6/26/21,Astrangia poculata,June,,FLD-4-TP5.vsi,14,PP,3.6547,microns,female,0,7,24,19,0,50,,50
+_FLD-5-TP5_,TP5,6/26/21,Astrangia poculata,June,,FLD-5-TP5.vsi,14,PP,3.6547,microns,female,0,6,29,15,0,50,,50
+_FLD-1-TP6_,TP5,7/24/21,Astrangia poculata,June,,FLD-1-TP6.vsi,14,PP,3.6547,microns,female,2,5,11,32,0,50,,50
+_FLD-4-TP6_,TP6,7/24/21,Astrangia poculata,July,,FLD-4-TP6.vsi,14,PP,3.6547,microns,male,0,10,18,21,1,50,,50
+_FLD-2-TP6_,TP6,7/24/21,Astrangia poculata,July,,FLD-2-TP6.vsi,14,PP,3.6547,microns,female,0,0,21,27,2,50,,50
+_FLD-1-TP6_,TP6,7/24/21,Astrangia poculata,July,,FLD-1-TP6.vsi,14,PP,3.6547,microns,male,0,0,12,32,6,50,great photo of stage 5,50
+_FLD-5-TP6_,TP6,7/24/21,Astrangia poculata,July,,FLD-5-TP6.vsi,14,PP,3.6547,microns,female,0,0,7,43,0,50,,50
+_FLD-3_TP6_,TP6,7/24/21,Astrangia poculata,July,,FLD-3_TP6.vsi,14,PP,3.6547,microns,male,0,0,23,20,7,50,,50
+_FLD-2-TP6_,TP6,7/24/21,Astrangia poculata,July,,FLD-2-TP6.vsi,14,PP,3.6547,microns,female,0,0,16,34,0,50,,50
+_FLD-1-TP7_,TP7,9/2/21,Astrangia poculata,September,,FLD-1-TP7.vsi,14,PP,3.6547,microns,male,12,32,6,0,0,50,,50
+_FLD-2-TP7_,TP7,9/2/21,Astrangia poculata,September,,FLD-2-TP7.vsi,14,PP,3.6547,microns,male,0,22,4,8,1,35,,35
+_FLD-3-TP7_,TP7,9/2/21,Astrangia poculata,September,,Image_FLD_3-_TP7.vsi,20,NOVA,7.3049,microns,NA,0,0,0,0,0,0,,0
+_FLD-4-TP7_,TP7,9/2/21,Astrangia poculata,September,,FLD-4-TP7.vsi,14,PP,3.6547,microns,male,0,0,0,6,4,10,,10
+_FLD-5-TP7_,TP7,9/2/21,Astrangia poculata,September,,FLD-5-TP7.vsi,14,PP,3.6547,microns,female,6,5,3,36,0,50,,50
+_FLD-6-TP7_,TP7,9/2/21,Astrangia poculata,September,,FLD-6-TP7.vsi,14,PP,3.6547,microns,male,10,14,14,3,2,43,,43
+_FLD-7-TP7_,TP7,9/2/21,Astrangia poculata,September,,FLD-7-TP7.vsi,14,PP,3.6547,microns,NA,0,0,0,0,0,0,,0
+_FLD-8-TP7_,TP7,9/2/21,Astrangia poculata,September,,FLD-8-TP7.vsi,14,PP,3.6547,microns,male,0,0,6,27,17,50,,50
+_FLD-9-TP7_,TP7,9/2/21,Astrangia poculata,September,,Image_FLD_9_TP7_1.vsi,14,NOVA,3.6525,microns,female,0,0,0,7,3,10,,10
