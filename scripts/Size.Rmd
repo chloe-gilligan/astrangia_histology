@@ -1,0 +1,244 @@
+---
+title: "Gamete size analysis"
+author: "jillashey"
+date: "2023-04-16"
+output: html_document
+---
+
+This script will analyze gamete size in Astrangia poculata over time. The data is separated into 3 treatments (ambient temperature, high temperature, field). 
+
+## Load packages 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+```
+
+## Load data & select specific columns 
+```{r}
+Size  <- read.csv("data/Size.csv", header = T, na.strings = c("", "NA")) %>% 
+  select(Coral.ID, Treatment, Timepoint, Sex, Scale, Average.of.Stage.One, Average.of.Stage.Two, Average.of.Stage.Three, Average.of.Stage.Four, Average.of.Stage.Five, Total.Gamates) %>%
+  rename("Stage1_avg" = "Average.of.Stage.One",
+         "Stage2_avg" = "Average.of.Stage.Two",
+         "Stage3_avg" = "Average.of.Stage.Three",
+         "Stage4_avg" = "Average.of.Stage.Four",
+         "Stage5_avg" = "Average.of.Stage.Five")
+
+######### Include Site eventually 
+```
+
+## Select Female 
+```{r}
+Size_female <- Size %>% 
+  filter(Sex == "Female") %>%
+  #filter(Treatment == "Field") %>%
+  filter(!Timepoint == "TP0") # remove random AST sample that is labeled as FLD 
+
+# Make avg columns numeric 
+Size_female$Stage1_avg <- as.numeric(Size_female$Stage1_avg)
+Size_female$Stage2_avg <- as.numeric(Size_female$Stage2_avg)
+Size_female$Stage3_avg <- as.numeric(Size_female$Stage3_avg)
+Size_female$Stage4_avg <- as.numeric(Size_female$Stage4_avg)
+Size_female$Stage5_avg <- as.numeric(Size_female$Stage5_avg)
+```
+
+## Wide to long
+```{r}
+Size_female_long <- gather(Size_female, stage, value, Stage1_avg:Stage5_avg) %>% 
+  select(Coral.ID, Treatment, Timepoint, Sex, stage, value) %>% 
+  na.omit()
+```
+
+## SUMMARIZE DATA
+```{r}
+agg_tbl_female <- Size_female %>%
+  group_by(Treatment, Timepoint) %>% 
+  summarise(total_count = n())
+```
+
+## Plot 
+```{r}
+## Plot all
+ggplot(Size_female_long, aes(x = Timepoint, y = value, fill = stage)) +
+  geom_point() +
+  facet_wrap(~stage)
+
+female_size_plot <- ggplot(Size_female_long, aes(x = stage, y = value, fill = stage)) +
+  geom_point(aes(fill = stage), size = 25, pch =21, color = "black") +
+  facet_grid(~Timepoint) +
+  scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0"), labels = c("Stage 1", "Stage 2", "Stage 3", "Stage 4")) +
+  #scale_color_manual(values = brewer.pal(n=4, name = "Blues")) +
+  scale_x_discrete(labels = c("Stage 1", "Stage 2", "Stage 3", "Stage 4")) +
+  #scale_discrete_manual(labels = c("Stage 1", "Stage 2", "Stage 3", "Stage 4")) +
+  ylab("Microns (µm)") +
+  xlab("") +
+  theme_bw() +
+  #theme_linedraw() +
+  #theme(panel.grid.major = element_line(colour = "black")) +
+  theme(axis.text.x = element_text(angle = 65,
+                                   hjust = 1,
+                                   size = 60,
+                                   color = "black")) +
+  theme(axis.text.y = element_text(size = 60,
+                                   color = "black"),
+        axis.title.y = element_text(size = 70)) +
+  theme(strip.text.x = element_text(size = 60),
+        panel.border=element_rect(colour="black",size=1)) +
+  theme(legend.position = "none") 
+  # theme(legend.title = element_text(size = 0),
+  #       legend.text = element_text(size = 10),
+  #       legend.position = "top", 
+  #       legend.direction = "horizontal")
+female_size_plot
+ggsave("output/Female_Gamete_Size.pdf", female_size_plot, width = 40, height = 30, units = "in")
+ggsave("output/Female_Gamete_Size.png", female_size_plot, width = 40, height = 30, units = "in")
+
+## Plot by treatment
+# Reorder treatment variables 
+Size_female_long$Treatment <- factor(Size_female_long$Treatment, levels = c("Ambient", "High", "Field"))
+
+# Add n size text 
+
+# Plot by treatment and stage 
+female_size_trt_plot <- ggplot(Size_female_long, aes(x = stage, y = value, fill = stage)) +
+  geom_point(aes(fill = stage), size = 25, pch =21, color = "black") +
+  facet_grid(Treatment~Timepoint) +
+  scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0"), labels = c("Stage 1", "Stage 2", "Stage 3", "Stage 4")) +
+  #scale_color_manual(values = brewer.pal(n=4, name = "Blues")) +
+  scale_x_discrete(labels = c("Stage 1", "Stage 2", "Stage 3", "Stage 4")) +
+  #scale_discrete_manual(labels = c("Stage 1", "Stage 2", "Stage 3", "Stage 4")) +
+  ylab("Microns (µm)") +
+  xlab("") +
+  theme_bw() +
+  #theme_linedraw() +
+  #theme(panel.grid.major = element_line(colour = "black")) +
+  theme(axis.text.x = element_text(angle = 65,
+                                   hjust = 1,
+                                   size = 60,
+                                   color = "black")) +
+  theme(axis.text.y = element_text(size = 60,
+                                   color = "black"),
+        axis.title.y = element_text(size = 70)) +
+  theme(strip.text.x = element_text(size = 50),
+        strip.text.y = element_text(size =50),
+        panel.border=element_rect(colour="black",size=1)) +
+  theme(legend.position = "none") +
+  theme(plot.margin = margin(4, 4, 4, 4, "cm")) 
+  # theme(legend.title = element_text(size = 0),
+  #       legend.text = element_text(size = 10),
+  #       legend.position = "top", 
+  #       legend.direction = "horizontal")
+ggsave("output/Female_Gamete_Size_Treatment.pdf", female_size_trt_plot, width = 40, height = 30, units = "in")
+ggsave("output/Female_Gamete_Size_Treatment.png", female_size_trt_plot, width = 40, height = 30, units = "in")
+```
+
+
+
+
+## Select Male 
+```{r}
+Size_male <- Size %>% 
+  filter(Sex == "Male") 
+#%>%
+  #filter(Treatment == "Field") %>%
+  #filter(!Timepoint == "TP0") # remove random AST sample that is labeled as FLD 
+
+# Make avg columns numeric 
+Size_male$Stage1_avg <- as.numeric(Size_male$Stage1_avg)
+Size_male$Stage2_avg <- as.numeric(Size_male$Stage2_avg)
+Size_male$Stage3_avg <- as.numeric(Size_male$Stage3_avg)
+Size_male$Stage4_avg <- as.numeric(Size_male$Stage4_avg)
+Size_male$Stage5_avg <- as.numeric(Size_male$Stage5_avg)
+```
+
+## Wide to long
+```{r}
+Size_male_long <- gather(Size_male, stage, value, Stage1_avg:Stage5_avg) %>% 
+  select(Coral.ID, Treatment, Timepoint, Sex, stage, value) %>% 
+  na.omit()
+  #filter(value <= 10000)
+```
+
+## SUMMARIZE DATA
+```{r}
+agg_tbl_male <- Size_male %>%
+  group_by(Treatment, Timepoint) %>% 
+  summarise(total_count = n())
+```
+
+## Plot 
+```{r}
+##Plot all
+ggplot(Size_male_long, aes(x = Timepoint, y = value, fill = stage)) +
+  geom_point() +
+  facet_wrap(~stage)
+
+male_size_plot <- ggplot(Size_male_long, aes(x = stage, y = value, fill = stage)) +
+  geom_point(aes(fill = stage), size = 25, pch =21, color = "black") +
+  facet_grid(~Timepoint) +
+  scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#008ECE"), labels=c('Stage 1', 'Stage 2', "Stage 3", "Stage 4", "Stage 5")) +
+  #scale_color_manual(values = brewer.pal(n=4, name = "Blues")) +
+  scale_x_discrete(labels = c("Stage 1", "Stage 2", "Stage 3", "Stage 4", "Stage 5")) +
+  #scale_discrete_manual(labels = c("Stage 1", "Stage 2", "Stage 3", "Stage 4")) +
+  ylab("Microns (µm)") +
+  xlab("") +
+  theme_bw() +
+  #theme_linedraw() +
+  #theme(panel.grid.major = element_line(colour = "black")) +
+  theme(axis.text.x = element_text(angle = 65,
+                                   hjust = 1,
+                                   size = 60,
+                                   color = "black")) +
+  theme(axis.text.y = element_text(size = 60,
+                                   color = "black"),
+        axis.title.y = element_text(size = 70)) +
+  theme(strip.text.x = element_text(size = 60),
+        panel.border=element_rect(colour="black",size=1)) +
+  theme(legend.position = "none") 
+  # theme(legend.title = element_text(size = 0),
+  #       legend.text = element_text(size = 10),
+  #       legend.position = "top", 
+  #       legend.direction = "horizontal")
+male_size_plot
+ggsave("output/Male_Gamete_Size.pdf", male_size_plot, width = 40, height = 30, units = "in")
+ggsave("output/Male_Gamete_Size.png", male_size_plot, width = 40, height = 30, units = "in")
+
+## Plot by treatment
+# Reorder treatment variables 
+Size_male_long$Treatment <- factor(Size_male_long$Treatment, levels = c("Ambient", "High", "Field"))
+
+# Add n size text 
+
+# Plot by treatment and stage 
+male_size_trt_plot <- ggplot(Size_male_long, aes(x = stage, y = value, fill = stage)) +
+  geom_point(aes(fill = stage), size = 25, pch =21, color = "black") +
+  facet_grid(Treatment~Timepoint) +
+  scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#008ECE"), labels = c("Stage 1", "Stage 2", "Stage 3", "Stage 4", "Stage 5")) +
+  #scale_color_manual(values = brewer.pal(n=4, name = "Blues")) +
+  scale_x_discrete(labels = c("Stage 1", "Stage 2", "Stage 3", "Stage 4", "Stage 5")) +
+  #scale_discrete_manual(labels = c("Stage 1", "Stage 2", "Stage 3", "Stage 4")) +
+  ylab("Microns (µm)") +
+  xlab("") +
+  theme_bw() +
+  #theme_linedraw() +
+  #theme(panel.grid.major = element_line(colour = "black")) +
+  theme(axis.text.x = element_text(angle = 65,
+                                   hjust = 1,
+                                   size = 60,
+                                   color = "black")) +
+  theme(axis.text.y = element_text(size = 60,
+                                   color = "black"),
+        axis.title.y = element_text(size = 70)) +
+  theme(strip.text.x = element_text(size = 50),
+        strip.text.y = element_text(size =50),
+        panel.border=element_rect(colour="black",size=1)) +
+  theme(legend.position = "none") +
+  theme(plot.margin = margin(4, 4, 4, 4, "cm")) 
+  # theme(legend.title = element_text(size = 0),
+  #       legend.text = element_text(size = 10),
+  #       legend.position = "top", 
+  #       legend.direction = "horizontal")
+ggsave("output/Male_Gamete_Size_Treatment.pdf", male_size_trt_plot, width = 40, height = 30, units = "in")
+ggsave("output/Male_Gamete_Size_Treatment.png", male_size_trt_plot, width = 40, height = 30, units = "in")
+```
+
