@@ -56,6 +56,9 @@ write_csv(merged_data, "../data/merged_data.csv")
 ```{r}
 Abundance_female <- merged_data %>% 
   filter(sex == "female") 
+
+names(Abundance_female)[2] <- 'timepoint'
+names(Abundance_female)[3] <- 'date'
 ```
 
 ### Calculate relative proportion of each stage 
@@ -72,7 +75,7 @@ Abundance_female <- Abundance_female %>%
 ### Change data from wide to long 
 ```{r}
 Abundance_female_long <- gather(Abundance_female, stage, value, rel_prop_stage1:rel_prop_stage5) %>% 
-  select(full_sample_id, treatment, timepoint.x, sex, stage, value) %>% 
+  select(full_sample_id, treatment, timepoint, sex, stage, value) %>% 
   na.omit()
 
 ```
@@ -80,18 +83,20 @@ Abundance_female_long <- gather(Abundance_female, stage, value, rel_prop_stage1:
 ### SUMMARIZE DATA
 ```{r}
 agg_tbl_female <- Abundance_female %>%
-  group_by(treatment, timepoint.x) %>% 
+  group_by(treatment, timepoint) %>% 
   summarise(total_count = n())
 ```
+
+female_abund_plot <- 
 
 ### Plot
 ```{r}
 ## Plot all 
-female_abund_plot <- ggplot(Abundance_female_long, aes(fill=stage, y=value, x=Timepoint)) + 
+ggplot(Abundance_female_long, aes(fill=stage, y=value, x=timepoint)) + 
     stat_summary(fun.y=sum, geom="bar", colour="black", position = "fill", stat = "identity") +
-    #geom_bar(position="fill", stat="identity", color = "black") +
-    #scale_fill_manual(values = brewer.pal(n=4, name = "Blues")) +
-    scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0"), labels=c('Stage 1', 'Stage 2', "Stage 3", "Stage 4")) +
+# geom_bar(position="fill", stat="identity", color = "black") +
+# scale_fill_manual(values = brewer.pal(n=5, name = "Blues")) +
+    scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899" ), labels=c('Stage 1', 'Stage 2', "Stage 3", "Stage 4", "Stage 5")) +
     scale_y_continuous(expand = c(0, 0)) +
     ylab("Relative Proportion") +
     xlab("") +
@@ -109,12 +114,12 @@ female_abund_plot <- ggplot(Abundance_female_long, aes(fill=stage, y=value, x=Ti
                                    color = "black"),
         axis.title.y = element_text(size = 70)) +
   theme(plot.margin = margin(4, 4, 4, 4, "cm"))
-ggsave("output/Female_Gamete_Abundance_AST.pdf", female_abund_plot, width = 35, height = 40, units = "in")
-ggsave("output/Female_Gamete_Abundance_AST.png", female_abund_plot, width = 35, height = 40, units = "in")
+#ggsave("output/Female_Gamete_Abundance_AST.pdf", female_abund_plot, width = 35, height = 40, units = "in")
+#ggsave("output/Female_Gamete_Abundance_AST.png", female_abund_plot, width = 35, height = 40, units = "in")
 
 ## Plot by treatment 
 # Reorder treatment variables 
-Abundance_female_long$Treatment <- factor(Abundance_female_long$Treatment, levels = c("Ambient", "High", "Field"))
+Abundance_female_long$treatment <- factor(Abundance_female_long$treatment, levels = c("Ambient", "High", "Field"))
 
 # Set up n size text - trying to add sample sizes under each of the bars, but it is proving difficult with facet_wrap
 text_high <- text_grob("test")
@@ -124,8 +129,8 @@ female_abund_trt_plot <- ggplot(Abundance_female_long, aes(fill=stage, y=value, 
     stat_summary(fun.y=sum, geom="bar", colour="black", position = "fill", stat = "identity") +
     facet_wrap(~Treatment) +
     #geom_bar(position="fill", stat="identity", color = "black") +
-    #scale_fill_manual(values = brewer.pal(n=4, name = "Blues")) +
-    scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0"), labels=c('Stage 1', 'Stage 2', "Stage 3", "Stage 4")) +
+    #scale_fill_manual(values = brewer.pal(n=5, name = "Blues")) +
+    scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0","#137899"), labels=c('Stage 1', 'Stage 2', "Stage 3", "Stage 4", "Stage 5")) +
     scale_y_continuous(expand = c(0, 0)) +
     ylab("Relative Proportion") +
     xlab("") +
