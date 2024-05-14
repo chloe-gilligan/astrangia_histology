@@ -1,0 +1,154 @@
+---
+title: "AST_histo_abundance"
+author: "Chloé Gilligan"
+date: "2024-05-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+This script will analyze gamete abundance in Astrangia poculata over time. The data is separated into 3 treatments (ambient temperature, high temperature, field). 
+
+
+## Installing ggpubr package
+```{r}
+install.packages("ggpubr")
+```
+
+## Load packages 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library("RColorBrewer")
+library(ggpubr)
+```
+
+## Reading in data and metadata
+```{r}
+library(readr)
+data <- read_csv("../data/astrangia_histology_abundance.csv", col_names = TRUE, na = c("", "NA")) %>%
+select(full_sample_id, timepoint, date, species, month, site,  sex, StageI, StageII, StageIII, StageIV, StageV, total_gametes)
+metadata <- read_csv("../AST_histology_metadata.csv")
+```
+
+
+## Filtering out the TP from sample ID's the begin with AST, keeping them on the field samples
+```{r}
+library(stringr)
+data <- data %>%
+  mutate(full_sample_id = ifelse(startsWith(full_sample_id, "AST"), 
+                                 gsub("-TP\\d+", "", full_sample_id), 
+                                 full_sample_id))
+```
+
+## Merging data to include treatment and site from the metadata to the histology abundance and size data
+```{r}
+merged_data <- merge(data, metadata, by = "full_sample_id")
+write_csv(merged_data, "../data/merged_data.csv")
+```
+
+## Select females
+```{r}
+Abundance_female <- merged_data %>% 
+  filter(sex == "female") 
+```
+
+### Calculate relative proportion of each stage 
+```{r}
+Abundance_female <- Abundance_female %>%
+  mutate(rel_prop_stage1 = (StageI / total_gametes) * 100,
+         rel_prop_stage2 = (StageII / total_gametes) * 100, 
+         rel_prop_stage3 = (StageIII / total_gametes) * 100, 
+         rel_prop_stage4 = (StageIV / total_gametes) * 100,
+         rel_prop_stage5 = (StageV / total_gametes) * 100)
+```
+
+
+### Change data from wide to long 
+```{r}
+Abundance_female_long <- gather(Abundance_female, stage, value, rel_prop_stage1:rel_prop_stage5) %>% 
+  select(full_sample_id, treatment, timepoint.x, sex, stage, value) %>% 
+  na.omit()
+
+```
+
+### SUMMARIZE DATA
+```{r}
+agg_tbl_female <- Abundance_female %>%
+  group_by(treatment, timepoint.x) %>% 
+  summarise(total_count = n())
+```
+
+### Plot
+```{r}
+## Plot all 
+female_abund_plot <- ggplot(Abundance_female_long, aes(fill=stage, y=value, x=Timepoint)) + 
+    stat_summary(fun.y=sum, geom="bar", colour="black", position = "fill", stat = "identity") +
+    #geom_bar(position="fill", stat="identity", color = "black") +
+    #scale_fill_manual(values = brewer.pal(n=4, name = "Blues")) +
+    scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0"), labels=c('Stage 1', 'Stage 2', "Stage 3", "Stage 4")) +
+    scale_y_continuous(expand = c(0, 0)) +
+    ylab("Relative Proportion") +
+    xlab("") +
+    theme_classic() + 
+    theme(legend.title = element_text(size = 0),
+          legend.text = element_text(size = 50),
+          legend.position = "right",
+          legend.key.size = unit(3, "line")) +
+          #legend.direction = "horizontal") +
+    theme(axis.text.x = element_text(angle = 65,
+                                   hjust = 1,
+                                   size = 60,
+                                   color = "black")) +
+   theme(axis.text.y = element_text(size = 60,
+                                   color = "black"),
+        axis.title.y = element_text(size = 70)) +
+  theme(plot.margin = margin(4, 4, 4, 4, "cm"))
+ggsave("output/Female_Gamete_Abundance_AST.pdf", female_abund_plot, width = 35, height = 40, units = "in")
+ggsave("output/Female_Gamete_Abundance_AST.png", female_abund_plot, width = 35, height = 40, units = "in")
+
+## Plot by treatment 
+# Reorder treatment variables 
+Abundance_female_long$Treatment <- factor(Abundance_female_long$Treatment, levels = c("Ambient", "High", "Field"))
+
+# Set up n size text - trying to add sample sizes under each of the bars, but it is proving difficult with facet_wrap
+text_high <- text_grob("test")
+
+# Plot
+female_abund_trt_plot <- ggplot(Abundance_female_long, aes(fill=stage, y=value, x=Timepoint)) + 
+    stat_summary(fun.y=sum, geom="bar", colour="black", position = "fill", stat = "identity") +
+    facet_wrap(~Treatment) +
+    #geom_bar(position="fill", stat="identity", color = "black") +
+    #scale_fill_manual(values = brewer.pal(n=4, name = "Blues")) +
+    scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0"), labels=c('Stage 1', 'Stage 2', "Stage 3", "Stage 4")) +
+    scale_y_continuous(expand = c(0, 0)) +
+    ylab("Relative Proportion") +
+    xlab("") +
+    theme_bw() + 
+    theme(legend.title = element_text(size = 0),
+          legend.text = element_text(size = 50),
+          legend.position = "right",
+          legend.key.size = unit(3, "line")) +
+          #legend.direction = "horizontal") +
+    theme(axis.text.x = element_text(angle = 65,
+                                   hjust = 1,
+                                   size = 60,
+                                   color = "black")) +
+   theme(axis.text.y = element_text(size = 60,
+                                   color = "black"),
+        axis.title.y = element_text(size = 70), 
+        axis.line = element_line(colour = "black", linewidth = 1)) +
+  theme(plot.margin = margin(4, 4, 4, 4, "cm")) +
+  theme(strip.text.x = element_text(size = 50, margin = margin(2, 0, 2, 0))) +
+  #annotation_custom(text_high, xmin = 1, xmax=1,ymin=-0.07,ymax=-0.07) +
+  coord_cartesian(clip = "off")
+female_abund_trt_plot
+
+ggsave("output/Female_Gamete_Abundance_Treatment.pdf", female_abund_trt_plot, width = 35, height = 36, units = "in")
+ggsave("output/Female_Gamete_Abundance_Treatment.png", female_abund_trt_plot, width = 35, height = 36, units = "in")
+```
