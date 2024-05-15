@@ -1,0 +1,4 @@
+"full_sample_id","timepoint","date","species","month","site","sex","StageI","StageII","StageIII","StageIV","StageV","total_gametes"
+"AST-2290","TP7","8/25/21","Astrangia poculata","August","ENDV",NA,0,0,0,0,0,0
+"_FLD-6-TP2_","TP2","4/11/21","Astrangia poculata","April",NA,"female",8,12,30,0,0,50
+"_FLD-1-TP4_","TP4","6/4/21","Astrangia poculata","June",NA,"female",3,13,32,2,0,50
