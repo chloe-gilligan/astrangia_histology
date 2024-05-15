@@ -38,7 +38,7 @@ AST-1205-TP4,TP4,5/28/21,Astrangia poculata,May,FW,AST-1205-TP4.vsi,14,PP,3.6547
 AST-1122-TP4,TP4,5/28/21,Astrangia poculata,May,,AST-1122-TP4.vsi,14,PP,3.6547,microns,male,15,20,15,0,0,50,
 AST-1470-TP4,TP4,5/28/21,Astrangia poculata,May,,AST-1470-TP4.vsi,37,PP,3.6547,microns,male,0,0,13,8,7,28,Great photos of stage 5 and also transformation between stage 3 and 4
 AST-2730,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,Missing but in Jill notebook 2730
-AST-1071,TP4,5/28/21,Astrangia poculata,May,FW,Image_AST_1071_1.vsi,20,NOVA,3.6524,microns,female,0,0,3,0,0,4,Missing but in Jill Notebook 1071
+AST-1071-TP4,TP4,5/28/21,Astrangia poculata,May,FW,Image_AST_1071_1.vsi,20,NOVA,3.6524,microns,female,0,0,3,0,0,4,Missing but in Jill Notebook 1071
 AST-1170-TP6,TP6,7/23/21,Astrangia poculata,Juy,FW,Image_AST_1170_2.vsi,20,NOVA,3.6524,microns,NA,0,0,0,0,0,0,
 AST-2552-TP6,TP6,7/23/21,Astrangia poculata,July,,Image_AST_2552.vsi,20,NOVA,7.3049,microns,NA,0,0,0,0,0,0,On slide info but not tank info
 AST-1191-TP6,TP6,7/23/21,Astrangia poculata,Juy,FW,AST-1191-TP7,14,PP,3.6524,microns,NA,0,0,0,0,0,0,
@@ -84,8 +84,8 @@ _FLD-5-TP4_,TP4,6/4/21,Astrangia poculata,June,,Image_FLD_5_TP4_1.vsi,14,NOVA,3.
 _FLD-2_TP4_,TP4,6/4/21,Astrangia poculata,June,,Image_training.vsi,14,PP,3.6547,microns,male,0,34,16,0,0,50,
 _FLD-3-TP4_,TP4,6/4/21,Astrangia poculata,June,,FLD-3-TP4.vsi,22,PP,3.6547,microns,male,0,38,12,0,0,50,
 _AST-FLD-TP4_,TP4,6/4/21,Astrangia poculata,June,,AST-FLD-TP4.vsi,14,PP,3.6547,microns,female,9,33,8,0,0,50,
-_FLD-4-TP4-1_,TP4-1,6/4/21,Astrangia poculata,June,,Image_FLD_4_TP4.vsi,14,NOVA,7.3049,microns,female,0,32,18,0,0,50,Labelled FLD_4_TP4 but just no 1 and 2 from NOVA
-_FLD-6-TP4-1_,TP4-1,6/4/21,Astrangia poculata,June,,Image_FLD_6_TP4.vsi,14,NOVA,7.3049,microns,female,5,35,10,0,0,50,Labelled FLD_6_TP4 but just no 1 and 2 from NOVA
+_FLD-4-TP4-1_,TP4,6/4/21,Astrangia poculata,June,,Image_FLD_4_TP4.vsi,14,NOVA,7.3049,microns,female,0,32,18,0,0,50,Labelled FLD_4_TP4 but just no 1 and 2 from NOVA
+_FLD-6-TP4-1_,TP4,6/4/21,Astrangia poculata,June,,Image_FLD_6_TP4.vsi,14,NOVA,7.3049,microns,female,5,35,10,0,0,50,Labelled FLD_6_TP4 but just no 1 and 2 from NOVA
 _FLD-11-TP5_,TP5,6/26/21,Astrangia poculata,June,,01FLD-11-TP5.vsi,,PP,3.6525,microns,male,0,16,17,17,0,50,
 _FLD-1_TP5_,TP5,6/26/21,Astrangia poculata,June,,Image_04.vsi,20,PP,3.6525,microns,NA,0,0,0,0,0,0,
 _FLD-2_TP5_,TP5,6/26/21,Astrangia poculata,June,,Image.vsi,44,PP,3.6547,microns,male,0,0,26,24,0,50,
