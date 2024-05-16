@@ -48,13 +48,15 @@ data <- data %>%
 
 ## Merging data to include treatment and site from the metadata to the histology abundance and size data
 ```{r}
-merged_data <- merge(data, metadata, by = "full_sample_id")
-write_csv(merged_data, "../data/merged_data.csv")
+##merged_data <- merge(data, metadata, by = "full_sample_id")
+##write_csv(merged_data, "../data/merged_data.csv")
 ```
 
 ## Select females
 ```{r}
-Abundance_female <- merged_data %>% 
+
+## changing merged_data to data
+Abundance_female <- data %>% 
   filter(sex == "female") 
 
 names(Abundance_female)[2] <- 'timepoint'
@@ -71,13 +73,12 @@ Abundance_female <- Abundance_female %>%
          rel_prop_stage5 = (StageV / total_gametes) * 100)
 ```
 
-
 ### Change data from wide to long 
 ```{r}
-Abundance_female_long <- gather(Abundance_female, stage, value, rel_prop_stage1:rel_prop_stage5) %>% 
-  select(full_sample_id, treatment, timepoint, sex, stage, value) %>% 
-  na.omit()
-
+Abundance_female_long <- gather(Abundance_female, stage, value, rel_prop_stage1:rel_prop_stage5) %>%
+  select(full_sample_id, treatment, timepoint, sex, stage, value) %>%
+  filter(!is.na(treatment)) %>%  # Ensure treatment is not NA
+  na.omit()                    # Remove rows with NA in any other columns
 ```
 
 ### SUMMARIZE DATA
@@ -87,6 +88,146 @@ agg_tbl_female <- Abundance_female %>%
   summarise(total_count = n())
 ```
 
+### Exporting CSV of merged data
+```{r}
+# Specify the file path where you want to save the CSV file
+file_path <- "merged.csv"
+
+# Export the data frame to a CSV file
+write.csv(data, file = file_path, row.names = FALSE)
+file.exists(file_path)
+```
+
+
+## Plotting Data
+```{r}
+head(Abundance_female_long)
+str(Abundance_female_long)
+ggplot(Abundance_female_long, aes(fill=stage, y=value, x=timepoint)) + 
+  geom_bar(stat="identity") +
+  #labs(x = NULL, y = "Relative Abundance", fill = "Stage") +
+   scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                      labels = c('Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V'))+
+# scale_y_continuous(expand = c(0, 0)) +
+    ylab("Relative Proportion") +
+    xlab("") +
+    theme_classic() 
+#Figure out if relative porportion or not, or if stage 0 is needed?
+theme(legend.title = element_text(size = 0),
+          legend.text = element_text(size = 50),
+          legend.position = "right",
+          legend.key.size = unit(3, "line")) +
+          #legend.direction = "horizontal") +
+    theme(axis.text.x = element_text(angle = 65,
+                                   hjust = 1,
+                                   size = 60,
+                                   color = "black")) +
+   theme(axis.text.y = element_text(size = 60,
+                                   color = "black"),
+        axis.title.y = element_text(size = 70)) +
+  theme(plot.margin = margin(4, 4, 4, 4, "cm"))
+
+
+
+```
+
+
+
+
+```{r}
+library(ggplot2)
+library(RColorBrewer)
+
+# Basic plot to check data
+basic_plot <- ggplot(Abundance_female_long, aes(fill=stage, y=value, x=timepoint)) + 
+    geom_bar(stat="identity", position="fill", colour="black") +
+    scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                      labels = c('Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5')) +
+    scale_y_continuous(expand = c(0, 0)) +
+    ylab("Relative Proportion") +
+    xlab("") +
+    theme_classic() 
+
+# Display the basic plot
+print(basic_plot)
+
+
+# Filter data for TP2
+tp2_data <- subset(Abundance_female_long, timepoint == "TP2")
+print(tp2_data)
+```
+```{r}
+head(Abundance_female_long)
+str(Abundance_female_long)
+ggplot(Abundance_female_long, aes(fill=stage, y=value, x=timepoint)) + 
+    geom_bar(stat="identity")
+```
+
+
+```{r}
+head(Abundance_female_long)
+str(Abundance_female_long)
+ggplot(Abundance_female_long, aes(fill=stage, y=value, x=timepoint)) + 
+    geom_bar(stat="identity")
+
+
+
+
+plot <- ggplot(Abundance_female_long, aes(fill=stage, y=value, x=timepoint)) + 
+    geom_bar(stat="identity", position="fill", colour="black") +
+    scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                      labels = c('Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5')) +
+    scale_y_continuous(expand = c(0, 0)) +
+    ylab("Relative Proportion") +
+    xlab("") +
+    theme_classic()
+
+# Display the plot at this point
+print(plot)
+
+plot <- plot + 
+    theme(legend.title = element_text(size = 0),
+          legend.text = element_text(size = 50),
+          legend.position = "right",
+          legend.key.size = unit(3, "line"),
+          axis.text.x = element_text(angle = 65, hjust = 1, size = 60, color = "black"),
+          axis.text.y = element_text(size = 60, color = "black"),
+          axis.title.y = element_text(size = 70),
+          plot.margin = margin(4, 4, 4, 4, "cm"))
+```
+
+
+```{r}
+library(ggplot2)
+library(grid)
+library(RColorBrewer)
+
+# Plot all
+female_abund_plot <- ggplot(Abundance_female_long, aes(fill=stage, y=value, x=timepoint)) + 
+    stat_summary(fun.y=sum, geom="bar", colour="black", position="fill", stat="identity") +
+    scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                      labels = c('Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5')) +
+    scale_y_continuous(expand = c(0, 0)) +
+    ylab("Relative Proportion") +
+    xlab("") +
+    theme_classic() + 
+    theme(legend.title = element_text(size = 0),
+          legend.text = element_text(size = 50),
+          legend.position = "right",
+          legend.key.size = unit(3, "line")) +
+    theme(axis.text.x = element_text(angle = 65, hjust = 1, size = 60, color = "black"),
+          axis.text.y = element_text(size = 60, color = "black"),
+          axis.title.y = element_text(size = 70),
+          plot.margin = margin(4, 4, 4, 4, "cm"))
+
+##ggsave("output/Female_Gamete_Abundance_AST.pdf", female_abund_plot, width = 35, height = 40, units = "in")
+##ggsave("output/Female_Gamete_Abundance_AST.png", female_abund_plot, width = 35, height = 40, units = "in")
+
+```
+
+
+
+
 female_abund_plot <- 
 
 ### Plot
@@ -94,8 +235,8 @@ female_abund_plot <-
 ## Plot all 
 ggplot(Abundance_female_long, aes(fill=stage, y=value, x=timepoint)) + 
     stat_summary(fun.y=sum, geom="bar", colour="black", position = "fill", stat = "identity") +
-# geom_bar(position="fill", stat="identity", color = "black") +
-# scale_fill_manual(values = brewer.pal(n=5, name = "Blues")) +
+geom_bar(position="fill", stat="identity", color = "black") +
+scale_fill_manual(values = brewer.pal(n=5, name = "Blues")) +
     scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899" ), labels=c('Stage 1', 'Stage 2', "Stage 3", "Stage 4", "Stage 5")) +
     scale_y_continuous(expand = c(0, 0)) +
     ylab("Relative Proportion") +

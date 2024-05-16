@@ -18,7 +18,7 @@ library(ggpubr)
 
 ## Load data & select specific columns 
 ```{r}
-Abundance <- read.csv("data/Abundance.csv", header = T, na.strings = c("", "NA")) %>% 
+Abundance <- read.csv("../data/Abundance.csv", header = T, na.strings = c("", "NA")) %>% 
   select(Coral.ID, Treatment, Timepoint, Sex, Abundance.of.Stage.One, Abundance.of.Stage.Two, Abundance.of.Stage.Three, Abundance.of.Stage.Four, Abundance.of.Stage.Five, Total.Gamates)
 
 ######### Include Site eventually 
