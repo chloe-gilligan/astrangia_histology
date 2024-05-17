@@ -142,7 +142,6 @@ ggplot(Abundance_female_long, aes(x = timepoint, y = value/10, fill = stage)) +
 library(readr)
 data <- read_csv("../data/astrangia_histology_abundance.csv", col_names = TRUE, na = c("", "NA")) %>%
   select(full_sample_id, timepoint, treatment, date, species, month, site, sex, StageI, StageII, StageIII, StageIV, StageV, total_gametes)
-metadata <- read_csv("../AST_histology_metadata.csv")
 
 library(stringr)
 data <- data %>%
