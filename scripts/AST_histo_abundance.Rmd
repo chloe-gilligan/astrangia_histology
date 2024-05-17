@@ -32,8 +32,8 @@ library(ggpubr)
 ```{r}
 library(readr)
 data <- read_csv("../data/astrangia_histology_abundance.csv", col_names = TRUE, na = c("", "NA")) %>%
-select(full_sample_id, timepoint, date, species, month, site,  sex, StageI, StageII, StageIII, StageIV, StageV, total_gametes)
-metadata <- read_csv("../AST_histology_metadata.csv")
+select(full_sample_id, timepoint, treatment, date, species, month, site,  sex, StageI, StageII, StageIII, StageIV, StageV, total_gametes)
+##metadata <- read_csv("../AST_histology_metadata.csv")
 ```
 
 
@@ -54,19 +54,35 @@ data <- data %>%
 
 ## Select females
 ```{r}
+## changing merged_data to data once data was merged manually
 
-## changing merged_data to data
 Abundance_female <- data %>% 
   filter(sex == "female") 
 
 names(Abundance_female)[2] <- 'timepoint'
-names(Abundance_female)[3] <- 'date'
+names(Abundance_female)[3] <- 'treatment'
+names(Abundance_female)[4] <- 'date'
 ```
+
+
+#Trying to see if I can do and if else statement and use sum of total gametes
+```{r}
+# Calculate the sum of Stages I-V for each row
+#Abundance_female$sum_stages <- rowSums(Abundance_female[, c("Stage0", StageI", "StageII", "StageIII", "StageIV", "StageV")])
+
+# Create a new column 'Stage' based on the sum
+#Abundance_female$Stage <- ifelse(Abundance_female$sum_stages == 0, 0, "Other")
+
+# Optionally, you can remove the 'sum_stages' column if you don't need it anymore
+#Abundance_female$sum_stages <- NULL
+```
+
 
 ### Calculate relative proportion of each stage 
 ```{r}
 Abundance_female <- Abundance_female %>%
-  mutate(rel_prop_stage1 = (StageI / total_gametes) * 100,
+  mutate(#rel_prop_stage0 = (Stage0 / total_gametes) * 100,
+         rel_prop_stage1 = (StageI / total_gametes) * 100,
          rel_prop_stage2 = (StageII / total_gametes) * 100, 
          rel_prop_stage3 = (StageIII / total_gametes) * 100, 
          rel_prop_stage4 = (StageIV / total_gametes) * 100,
@@ -75,10 +91,30 @@ Abundance_female <- Abundance_female %>%
 
 ### Change data from wide to long 
 ```{r}
-Abundance_female_long <- gather(Abundance_female, stage, value, rel_prop_stage1:rel_prop_stage5) %>%
+Abundance_female_long <- Abundance_female %>%
+  pivot_longer(cols = rel_prop_stage1:rel_prop_stage5, 
+               names_to = "stage", 
+               values_to = "value") %>%
+  select(full_sample_id, treatment, timepoint, sex, stage, value) %>%
+  filter(!is.na(treatment)) %>%
+  na.omit()
+```
+
+### Trying to make sure stage 1 is included in TP0
+```{r}
+#Abundance_female_long <- gather(Abundance_female, stage, value, rel_prop_stage1:rel_prop_stage5)
+Abundance_female_long <- gather(Abundance_female, stage, value, rel_prop_stage1:rel_prop_stage5, key = "stage", value = "value")%>%
   select(full_sample_id, treatment, timepoint, sex, stage, value) %>%
   filter(!is.na(treatment)) %>%  # Ensure treatment is not NA
   na.omit()                    # Remove rows with NA in any other columns
+```
+
+### Trying to make sure stage 1 is included in TP0
+```{r}
+#Abundance_female_long <- gather(Abundance_female, stage, value, rel_prop_stage1:rel_prop_stage5) %>%
+  #select(full_sample_id, treatment, timepoint, sex, stage, value) %>%
+  #filter(!is.na(treatment)) %>%  # Ensure treatment is not NA
+  #na.omit()                    # Remove rows with NA in any other columns
 ```
 
 ### SUMMARIZE DATA
@@ -87,17 +123,371 @@ agg_tbl_female <- Abundance_female %>%
   group_by(treatment, timepoint) %>% 
   summarise(total_count = n())
 ```
-
-### Exporting CSV of merged data
+#Trying to plot data
 ```{r}
-# Specify the file path where you want to save the CSV file
-file_path <- "merged.csv"
+head(Abundance_female_long)
+str(Abundance_female_long)
+ggplot(Abundance_female_long, aes(x = timepoint, y = value/10, fill = stage)) +
+  geom_col() +  # Using geom_col() instead of geom_bar(stat = "identity")
+  scale_y_continuous(labels = scales::percent_format(scale = 1), limits = c(0, 100)) +
+  labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
+  theme_minimal() +
+  scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                    labels = c('Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5'))
 
-# Export the data frame to a CSV file
-write.csv(data, file = file_path, row.names = FALSE)
-file.exists(file_path)
 ```
 
+### Ifelse statement to turn anything that had zeros to stage 0 starting code from the top
+```{r}
+library(readr)
+data <- read_csv("../data/astrangia_histology_abundance.csv", col_names = TRUE, na = c("", "NA")) %>%
+  select(full_sample_id, timepoint, treatment, date, species, month, site, sex, StageI, StageII, StageIII, StageIV, StageV, total_gametes)
+metadata <- read_csv("../AST_histology_metadata.csv")
+
+library(stringr)
+data <- data %>%
+  mutate(full_sample_id = ifelse(startsWith(full_sample_id, "AST"), 
+                                 gsub("-TP\\d+", "", full_sample_id), 
+                                 full_sample_id))
+
+#merged_data <- merge(data, metadata, by = "full_sample_id")
+#write_csv(merged_data, "../data/merged_data.csv")
+
+## changing merged_data to data once data was merged manually
+
+Abundance_female <- data %>% 
+  filter(sex == "female") 
+
+names(Abundance_female)[2] <- 'timepoint'
+names(Abundance_female)[3] <- 'treatment'
+names(Abundance_female)[4] <- 'date'
+
+# Calculate the sum of Stages I-V for each row
+Abundance_female$sum_stages <- rowSums(Abundance_female[, c("StageI", "StageII", "StageIII", "StageIV", "StageV")])
+
+# Create a new column 'Stage' based on the sum
+Abundance_female$Stage <- ifelse(Abundance_female$sum_stages == 0, 0, "Other")
+
+# Optionally, you can remove the 'sum_stages' column if you don't need it anymore
+Abundance_female$sum_stages <- NULL
+
+Abundance_female <- Abundance_female %>%
+  mutate(Stage0 = total_gametes - rowSums(Abundance_female[, c("StageI", "StageII", "StageIII", "StageIV", "StageV")]),
+         rel_prop_stage0 = (Stage0 / total_gametes) * 100,
+         rel_prop_stage1 = (StageI / total_gametes) * 100,
+         rel_prop_stage2 = (StageII / total_gametes) * 100, 
+         rel_prop_stage3 = (StageIII / total_gametes) * 100, 
+         rel_prop_stage4 = (StageIV / total_gametes) * 100,
+         rel_prop_stage5 = (StageV / total_gametes) * 100)
+
+Abundance_female_long <- Abundance_female %>%
+  pivot_longer(cols = rel_prop_stage0:rel_prop_stage5, 
+               names_to = "stage", 
+               values_to = "value") %>%
+  select(full_sample_id, treatment, timepoint, sex, stage, value) %>%
+  filter(!is.na(treatment)) %>%
+  na.omit()
+
+#Abundance_female_long <- gather(Abundance_female, stage, value, rel_prop_stage1:rel_prop_stage5, key = "stage", value = "value")%>%
+ # select(full_sample_id, treatment, timepoint, sex, stage, value) %>%
+ # filter(!is.na(treatment)) %>%  # Ensure treatment is not NA
+ # na.omit()                    # Remove rows with NA in any other columns
+
+
+#agg_tbl_female <- Abundance_female %>%
+  #group_by(treatment, timepoint) %>% 
+ # summarise(total_count = n())
+
+head(Abundance_female_long)
+str(Abundance_female_long)
+ggplot(Abundance_female_long, aes(x = timepoint, y = value/10, fill = stage)) +
+  geom_col() +  # Using geom_col() instead of geom_bar(stat = "identity")
+  scale_y_continuous(labels = scales::percent_format(scale = 1), limits = c(0, 100)) +
+  labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
+  theme_minimal() +
+  #scale_fill_manual(values = c("#C4CACD", #CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                    #labels = c('Stage0', 'Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5'))
+
+
+
+```
+
+
+
+
+```{r}
+### Trying to plot data
+head(Abundance_female_long)
+str(Abundance_female_long)
+ggplot(Abundance_female_long, aes(x = timepoint, y = value/100, fill = stage)) +
+  geom_bar(stat="identity") +
+  labs(x = NULL, y = "Relative Abundance", fill = "Stage") +
+   scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                      labels = c('Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V'))+
+  #scale_fill_manual(values = c('#C4CACD',"#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                      #labels = c('#Stage 0', 'Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V'))+
+  
+scale_y_continuous(labels = scales::percent_format(scale = 1), limits = c(0, 1)) +
+    ylab("Relative Proportion") +
+    xlab("") +
+    theme_classic() +
+scale_y_continuous(labels = scales::percent_format(scale = 1))
+
+
+## Plot by treatment 
+# Reorder treatment variables 
+Abundance_female_long$treatment <- factor(Abundance_female_long$treatment, levels = c("Ambient", "High", "Field"))
+
+# Set up n size text - trying to add sample sizes under each of the bars, but it is proving difficult with facet_wrap
+text_high <- text_grob("test")
+```
+
+
+
+### Trying to plot data
+```{r}
+head(Abundance_female_long)
+str(Abundance_female_long)
+ggplot(Abundance_female_long, aes(fill=stage, y=value, x=timepoint)) + 
+  geom_bar(stat="identity") +
+  labs(x = NULL, y = "Relative Abundance", fill = "Stage") +
+   scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                      labels = c('Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V'))+
+  #scale_fill_manual(values = c('#C4CACD',"#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                      #labels = c('#Stage 0', 'Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V'))+
+scale_y_continuous(labels = scales::percent_format(scale = 1), limits = c(0, 100)) +
+    ylab("Relative Proportion") +
+    xlab("") +
+    theme_classic() +
+scale_y_continuous(labels = scales::percent_format(scale = 1))
+
+
+# Plot the data as a stacked bar graph
+ggplot(Abundance_female_long, aes(x = timepoint, y = value/10, fill = stage)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1), limits = c(0, 100)) +
+  labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
+  theme_minimal()
+```
+
+
+
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(ggplot2)
+
+# Filter out TP from sample IDs starting with AST
+data <- data %>%
+  mutate(full_sample_id = ifelse(startsWith(full_sample_id, "AST"), 
+                                 gsub("-TP\\d+", "", full_sample_id), 
+                                 full_sample_id))
+
+# Select females and rename columns
+Abundance_female <- data %>% 
+  filter(sex == "female")
+
+names(Abundance_female)[2] <- 'timepoint'
+names(Abundance_female)[3] <- 'treatment'
+names(Abundance_female)[4] <- 'date'
+
+# Calculate relative proportion of each stage
+Abundance_female <- Abundance_female %>%
+  mutate(
+    rel_prop_stage1 = (StageI / total_gametes) * 100,
+    rel_prop_stage2 = (StageII / total_gametes) * 100, 
+    rel_prop_stage3 = (StageIII / total_gametes) * 100, 
+    rel_prop_stage4 = (StageIV / total_gametes) * 100,
+    rel_prop_stage5 = (StageV / total_gametes) * 100
+  )
+
+# Debugging: Check missing or zero values in rel_prop_stage1 for TP0
+Abundance_female %>%
+  filter(timepoint == "TP0") %>%
+  select(full_sample_id, timepoint, StageI, total_gametes, rel_prop_stage1) %>%
+  summarise(
+    total_samples = n(),
+    missing_values = sum(is.na(rel_prop_stage1)),
+    zero_values = sum(rel_prop_stage1 == 0)
+  )
+
+# Debugging: Verify calculation of rel_prop_stage1
+Abundance_female %>%
+  filter(timepoint == "TP0") %>%
+  mutate(
+    calculated_rel_prop_stage1 = (StageI / total_gametes) * 100
+  ) %>%
+  select(full_sample_id, timepoint, StageI, total_gametes, rel_prop_stage1, calculated_rel_prop_stage1)
+
+# Change data from wide to long
+Abundance_female_long <- gather(Abundance_female, stage, value, rel_prop_stage1:rel_prop_stage5) %>%
+  select(full_sample_id, treatment, timepoint, sex, stage, value) %>%
+  filter(!is.na(treatment)) %>%  # Ensure treatment is not NA
+  na.omit()                      # Remove rows with NA in any other columns
+
+# Debugging: Verify filtering steps
+Abundance_female_long %>%
+  filter(timepoint == "TP0" & stage == "rel_prop_stage1")
+
+# Summarize data
+agg_tbl_female <- Abundance_female %>%
+  group_by(treatment, timepoint) %>% 
+  summarise(total_count = n())
+
+# Plot the data as a stacked bar graph
+ggplot(Abundance_female_long, aes(x = timepoint, y = value, fill = stage)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
+  theme_minimal()
+
+#Trying to figure out where stage 1 went
+
+
+
+# Plot the data as a stacked bar graph
+head(Abundance_female_long)
+str(Abundance_female_long)
+ggplot(Abundance_female_long, aes(x = timepoint, y = value/10, fill = stage)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1), limits = c(0, 100)) +
+  labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
+  theme_minimal()+
+   scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                      labels = c('Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5'))
+```
+
+
+
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(ggplot2)
+
+# Filter out TP from sample IDs starting with AST
+data <- data %>%
+  mutate(full_sample_id = ifelse(startsWith(full_sample_id, "AST"), 
+                                 gsub("-TP\\d+", "", full_sample_id), 
+                                 full_sample_id))
+
+# Select females and rename columns
+Abundance_female <- data %>% 
+  filter(sex == "female")
+
+names(Abundance_female)[2] <- 'timepoint'
+names(Abundance_female)[3] <- 'treatment'
+names(Abundance_female)[4] <- 'date'
+
+# Calculate relative proportion of each stage
+Abundance_female <- Abundance_female %>%
+  mutate(
+    rel_prop_stage1 = (StageI / total_gametes) * 100,
+    rel_prop_stage2 = (StageII / total_gametes) * 100, 
+    rel_prop_stage3 = (StageIII / total_gametes) * 100, 
+    rel_prop_stage4 = (StageIV / total_gametes) * 100,
+    rel_prop_stage5 = (StageV / total_gametes) * 100
+  )
+
+# Change data from wide to long
+Abundance_female_long <- gather(Abundance_female, stage, value, rel_prop_stage1:rel_prop_stage5) %>%
+  select(full_sample_id, treatment, timepoint, sex, stage, value) %>%
+  filter(!is.na(treatment)) %>%  # Ensure treatment is not NA
+  na.omit()                      # Remove rows with NA in any other columns
+
+# Summarize data
+agg_tbl_female <- Abundance_female %>%
+  group_by(treatment, timepoint) %>% 
+  summarise(total_count = n())
+
+# Plot the data as a stacked bar graph
+ggplot(Abundance_female_long, aes(x = timepoint, y = value, fill = stage)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
+  theme_minimal()
+
+
+# Plot the data as a stacked bar graph
+ggplot(Abundance_female_long, aes(x = timepoint, y = value/10, fill = stage)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1), limits = c(0, 100)) +
+  labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
+  theme_minimal()
+```
+
+
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(ggplot2)
+
+# Filter out TP from sample IDs starting with AST
+data <- data %>%
+  mutate(full_sample_id = ifelse(startsWith(full_sample_id, "AST"), 
+                                 gsub("-TP\\d+", "", full_sample_id), 
+                                 full_sample_id))
+
+# Select females and rename columns
+Abundance_female <- data %>% 
+  filter(sex == "female")
+
+names(Abundance_female)[2] <- 'timepoint'
+names(Abundance_female)[3] <- 'treatment'
+names(Abundance_female)[4] <- 'date'
+
+# Calculate relative proportion of each stage
+Abundance_female <- Abundance_female %>%
+  mutate(
+    total_count = StageI + StageII + StageIII + StageIV + StageV,
+    rel_prop_stage1 = (StageI / total_gametes) * 100,
+    rel_prop_stage2 = (StageII / total_gametes) * 100, 
+    rel_prop_stage3 = (StageIII / total_gametes) * 100, 
+    rel_prop_stage4 = (StageIV / total_gametes) * 100,
+    rel_prop_stage5 = (StageV / total_gametes) * 100
+  )
+
+# Change data from wide to long
+Abundance_female_long <- gather(Abundance_female, stage, value, rel_prop_stage1:rel_prop_stage5) %>%
+  select(full_sample_id, treatment, timepoint, sex, stage, value) %>%
+  filter(!is.na(treatment)) %>%  # Ensure treatment is not NA
+  na.omit()                      # Remove rows with NA in any other columns
+
+# Summarize data
+agg_tbl_female <- Abundance_female %>%
+  group_by(treatment, timepoint) %>% 
+  summarise(total_count = n())
+
+# Plot the data
+ggplot(Abundance_female_long, aes(x = timepoint, y = value, fill = stage)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
+  theme_minimal()
+
+
+#Plotting by treatment
+female_abund_trt_plot <- ggplot(Abundance_female_long, aes(fill=stage, y=value, x=Timepoint)) + 
+    stat_summary(fun.y=sum, geom="bar", colour="black", position = "fill", stat = "identity") +
+    facet_wrap(~Treatment) +
+    #geom_bar(position="fill", stat="identity", color = "black") +
+    #scale_fill_manual(values = brewer.pal(n=4, name = "Blues")) +
+    scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0"), labels=c('Stage 1', 'Stage 2', "Stage 3", "Stage 4")) +
+    scale_y_continuous(expand = c(0, 0)) +
+    ylab("Relative Proportion") +
+    xlab("") +
+    theme_bw()
+
+
+```
 
 ## Plotting Data
 ```{r}
@@ -105,13 +495,14 @@ head(Abundance_female_long)
 str(Abundance_female_long)
 ggplot(Abundance_female_long, aes(fill=stage, y=value, x=timepoint)) + 
   geom_bar(stat="identity") +
-  #labs(x = NULL, y = "Relative Abundance", fill = "Stage") +
+  labs(x = NULL, y = "Relative Abundance", fill = "Stage") +
    scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
                       labels = c('Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V'))+
 # scale_y_continuous(expand = c(0, 0)) +
     ylab("Relative Proportion") +
     xlab("") +
-    theme_classic() 
+    theme_classic() +
+scale_y_continuous(labels = scales::percent_format(scale = 1))
 #Figure out if relative porportion or not, or if stage 0 is needed?
 theme(legend.title = element_text(size = 0),
           legend.text = element_text(size = 50),
