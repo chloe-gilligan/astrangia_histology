@@ -89,25 +89,186 @@ Abundance_female <- Abundance_female %>%
          rel_prop_stage5 = (StageV / total_gametes) * 100)
 ```
 
-### Change data from wide to long 
+### Troubleshooting to make if else statement to make Stage 0- not working
 ```{r}
-Abundance_female_long <- Abundance_female %>%
-  pivot_longer(cols = rel_prop_stage1:rel_prop_stage5, 
-               names_to = "stage", 
-               values_to = "value") %>%
-  select(full_sample_id, treatment, timepoint, sex, stage, value) %>%
-  filter(!is.na(treatment)) %>%
-  na.omit()
+# Find numeric columns with negative values
+#numeric_cols <- sapply(Abundance_female, is.numeric)
+#numeric_data <- Abundance_female[, numeric_cols]
+
+# Replace negative values with 0 for numeric columns only
+#Abundance_female[, numeric_cols] <- apply(numeric_data, 2, function(x) ifelse(x < 0, 0, x))
+
 ```
 
-### Trying to make sure stage 1 is included in TP0
+
+### Trying to make Stage 0- not working
 ```{r}
-#Abundance_female_long <- gather(Abundance_female, stage, value, rel_prop_stage1:rel_prop_stage5)
-Abundance_female_long <- gather(Abundance_female, stage, value, rel_prop_stage1:rel_prop_stage5, key = "stage", value = "value")%>%
-  select(full_sample_id, treatment, timepoint, sex, stage, value) %>%
-  filter(!is.na(treatment)) %>%  # Ensure treatment is not NA
-  na.omit()                    # Remove rows with NA in any other columns
+# Create a new column 'Stage' based on the sum of Stages I-V
+#Abundance_female <- Abundance_female %>%
+  #mutate(Stage = ifelse(rowSums(select(., starts_with("Stage"))) < 1, "Stage 0", "Other"))
+
+
+# Calculate the total abundance for each row
+#Abundance_female <- Abundance_female %>%
+ # mutate(total_abundance = rowSums(select(., starts_with("rel_prop_stage"))))
+
+# Calculate the relative abundance for each stage
+#Abundance_female <- Abundance_female %>%
+  #mutate_at(vars(starts_with("rel_prop_stage")), ~./total_abundance * 100)
+
+# Calculate the remaining abundance for stage 0
+#Abundance_female <- Abundance_female %>%
+  #mutate(rel_prop_stage0 = 100 - rowSums(select(., starts_with("rel_prop_stage1"):starts_with("rel_prop_stage5"))))
+
+# Replace negative values with 0
+#Abundance_female[Abundance_female < 0] <- 0
+
 ```
+
+
+### Changing data from wide to long
+```{r}
+Abundance_female_long <- Abundance_female %>%
+  pivot_longer(cols = starts_with("rel_prop_stage"), 
+               names_to = "stage", 
+               values_to = "value") %>%
+  mutate(stage = factor(stage, 
+                        #levels = c("rel_prop_stage0", "rel_prop_stage1", "rel_prop_stage2", "rel_prop_stage3", "rel_prop_stage4", "rel_prop_stage5"), 
+                        #labels = c("Stage0","Stage 1", "Stage 2", "Stage 3", "Stage 4", "Stage 5")))
+levels = c("rel_prop_stage1", "rel_prop_stage2", "rel_prop_stage3", "rel_prop_stage4", "rel_prop_stage5"), 
+                        labels = c("Stage 1", "Stage 2", "Stage 3", "Stage 4", "Stage 5")))
+```
+
+### Plotting Data
+```{r}
+## Take out Stage 0 to see proper dataset
+# Using ggplot2 to create the plot
+ggplot(Abundance_female_long, aes(x = timepoint, y = value / 10, fill = stage)) +
+  geom_col() +
+  scale_y_continuous(labels = scales::percent_format(scale = 1), limits = c(0, 100)) +
+  labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
+  theme_minimal() +
+  scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                    labels = c( 'Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5'))
+#scale_fill_manual(values = c("#C4CACD", "#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                    #labels = c('Stage 0', 'Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5'))
+```
+### Plotting data by treatment
+```{r}
+# Now you can use ggplot2 to create the plot
+ggplot(Abundance_female_long, aes(x = timepoint, y = value / 10, fill = stage)) +
+  geom_col() +
+  scale_y_continuous(labels = scales::percent_format(scale = 1), limits = c(0, 100)) +
+  labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
+  theme_minimal() +
+  scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                    labels = c('Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5')) +
+  facet_wrap(~treatment)
+#scale_fill_manual(values = c("#C4CACD", "#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                   # labels = c('Stage 0', 'Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5')) +
+ # facet_wrap(~treatment)
+
+
+```
+
+
+### Trying to add Stage 0
+```{r}
+## Load packages 
+library(tidyverse)
+library(RColorBrewer)
+library(ggpubr)
+
+## Reading in data and metadata
+data <- read_csv("../data/astrangia_histology_abundance.csv", col_names = TRUE, na = c("", "NA")) %>%
+  select(full_sample_id, timepoint, treatment, date, species, month, site, sex, StageI, StageII, StageIII, StageIV, StageV, total_gametes)
+
+## Filtering out the TP from sample ID's that begin with AST, keeping them on the field samples
+data <- data %>%
+  mutate(full_sample_id = ifelse(startsWith(full_sample_id, "AST"), 
+                                 gsub("-TP\\d+", "", full_sample_id), 
+                                 full_sample_id))
+
+## Select females
+Abundance_female <- data %>% 
+  filter(sex == "female") 
+
+names(Abundance_female)[2] <- 'timepoint'
+names(Abundance_female)[3] <- 'treatment'
+names(Abundance_female)[4] <- 'date'
+
+### Calculate relative proportion of each stage 
+Abundance_female <- Abundance_female %>%
+  mutate(
+    rel_prop_stage1 = (StageI / total_gametes) * 100,
+    rel_prop_stage2 = (StageII / total_gametes) * 100, 
+    rel_prop_stage3 = (StageIII / total_gametes) * 100, 
+    rel_prop_stage4 = (StageIV / total_gametes) * 100,
+    rel_prop_stage5 = (StageV / total_gametes) * 100
+  )
+
+# Calculate the sum of Stages I-V for each row
+Abundance_female <- Abundance_female %>%
+  rowwise() %>%
+  mutate(sum_stages = sum(c(rel_prop_stage1, rel_prop_stage2, rel_prop_stage3, rel_prop_stage4, rel_prop_stage5), na.rm = TRUE)) %>%
+  ungroup()
+
+# Create Stage 0 based on the sum of other stages
+Abundance_female <- Abundance_female %>%
+  mutate(rel_prop_stage0 = ifelse(sum_stages < 100, 100 - sum_stages, 0))
+
+# Changing data from wide to long
+Abundance_female_long <- Abundance_female %>%
+  pivot_longer(cols = starts_with("rel_prop_stage"), 
+               names_to = "stage", 
+               values_to = "value") %>%
+  mutate(stage = factor(stage, 
+                        levels = c("rel_prop_stage0", "rel_prop_stage1", "rel_prop_stage2", "rel_prop_stage3", "rel_prop_stage4", "rel_prop_stage5"), 
+                        labels = c("Stage 0", "Stage 1", "Stage 2", "Stage 3", "Stage 4", "Stage 5")))
+
+# Plotting Data
+ggplot(Abundance_female_long, aes(x = timepoint, y = value, fill = stage)) +
+  geom_col() +
+  scale_y_continuous(labels = scales::percent_format(scale = 1), limits = c(0, 100)) +
+  labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
+  theme_minimal() +
+  scale_fill_manual(values = c("#C4CACD", "#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                    labels = c('Stage 0', 'Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5'))
+```
+
+
+
+### Troubleshooting- WORKS!!!
+```{r}
+# Load necessary libraries
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+
+# Assuming Abundance_female is your original data frame with columns rel_prop_stage1 to rel_prop_stage5
+# First, we need to reshape the data to long format
+
+Abundance_female_long <- Abundance_female %>%
+  pivot_longer(cols = starts_with("rel_prop_stage"), 
+               names_to = "stage", 
+               values_to = "value") %>%
+  mutate(stage = factor(stage, 
+                        levels = c("rel_prop_stage1", "rel_prop_stage2", "rel_prop_stage3", "rel_prop_stage4", "rel_prop_stage5"), 
+                        labels = c("Stage 1", "Stage 2", "Stage 3", "Stage 4", "Stage 5")))
+
+# Now you can use ggplot2 to create the plot
+ggplot(Abundance_female_long, aes(x = timepoint, y = value / 10, fill = stage)) +
+  geom_col() +
+  scale_y_continuous(labels = scales::percent_format(scale = 1), limits = c(0, 100)) +
+  labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
+  theme_minimal() +
+  scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                    labels = c( 'Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5'))
+#scale_fill_manual(values = c("#C4CACD", "#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                  #  labels = c('Stage 0', 'Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5'))
+```
+
+
 
 ### Trying to make sure stage 1 is included in TP0
 ```{r}
