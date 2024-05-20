@@ -89,6 +89,22 @@ Abundance_female <- Abundance_female %>%
          rel_prop_stage5 = (StageV / total_gametes) * 100)
 ```
 
+### Duplicating data that is in ambient stage 0 goes into heat as well
+```{r}
+# Duplicate rows where treatment is "ambient"
+ambient_data <- Abundance_female %>%
+  filter(treatment == "Ambient")
+
+# Change the treatment value to "heat"
+ambient_data <- ambient_data %>%
+  mutate(treatment = "Heat")
+
+# Combine the original data with the duplicated data
+Abundance_female <- bind_rows(Abundance_female, ambient_data)
+
+```
+
+
 ### Troubleshooting to make if else statement to make Stage 0- not working
 ```{r}
 # Find numeric columns with negative values
@@ -143,31 +159,60 @@ levels = c("rel_prop_stage1", "rel_prop_stage2", "rel_prop_stage3", "rel_prop_st
 ```{r}
 ## Take out Stage 0 to see proper dataset
 # Using ggplot2 to create the plot
+#ggplot(Abundance_female_long, aes(x = timepoint, y = value / 10, fill = stage)) +
+  #geom_col() +
+  #scale_y_continuous(labels = scales::percent_format(scale = 1), limits = c(0, 100)) +
+  #labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
+  #theme_minimal() +
+  #scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                    #labels = c( 'Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5'))
+#scale_fill_manual(values = c("#C4CACD", "#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                    #labels = c('Stage 0', 'Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5'))
+
 ggplot(Abundance_female_long, aes(x = timepoint, y = value / 10, fill = stage)) +
-  geom_col() +
-  scale_y_continuous(labels = scales::percent_format(scale = 1), limits = c(0, 100)) +
+  stat_summary(fun.y=sum, geom="bar", colour="black", position = "fill", stat = "identity") +
+  #geom_col() +
+  #scale_y_continuous(labels = scales::percent_format(scale = 1), limits = c(0, 100)) +
+  scale_y_continuous(expand = c(0, 0)) +
   labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
   theme_minimal() +
   scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
                     labels = c( 'Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5'))
 #scale_fill_manual(values = c("#C4CACD", "#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
                     #labels = c('Stage 0', 'Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5'))
+
+
 ```
+
+### Filtering out TP3 and TP5
+```{r}
+# Separate data for different treatments
+ambient_heat_data <- Abundance_female_long %>%
+  filter(treatment %in% c("Ambient", "Heat")) %>%
+  filter(!timepoint %in% c("TP3", "TP5"))
+
+field_data <- Abundance_female_long %>%
+  filter(treatment == "Field")
+
+# Combine the datasets back together
+combined_data <- bind_rows(ambient_heat_data, field_data)
+
+```
+
 ### Plotting data by treatment
 ```{r}
 # Now you can use ggplot2 to create the plot
 ggplot(Abundance_female_long, aes(x = timepoint, y = value / 10, fill = stage)) +
-  geom_col() +
-  scale_y_continuous(labels = scales::percent_format(scale = 1), limits = c(0, 100)) +
+  stat_summary(fun.y=sum, geom="bar", colour="black", position = "fill", stat = "identity") +
+  scale_y_continuous(expand = c(0, 0)) +
   labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
   theme_minimal() +
-  scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
-                    labels = c('Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5')) +
+   scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                    labels = c( 'Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5'))+
   facet_wrap(~treatment)
 #scale_fill_manual(values = c("#C4CACD", "#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
                    # labels = c('Stage 0', 'Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5')) +
  # facet_wrap(~treatment)
-
 
 ```
 
