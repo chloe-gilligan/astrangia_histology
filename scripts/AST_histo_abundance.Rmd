@@ -32,25 +32,159 @@ library(ggpubr)
 ```{r}
 library(readr)
 data <- read_csv("../data/astrangia_histology_abundance.csv", col_names = TRUE, na = c("", "NA")) %>%
-select(full_sample_id, timepoint, treatment, date, species, month, site,  sex, StageI, StageII, StageIII, StageIV, StageV, total_gametes)
+select(full_sample_id, timepoint, treatment, date, species, month, site,  sex, StageI, StageII, StageIII, StageIV, StageV)
 ##metadata <- read_csv("../AST_histology_metadata.csv")
 ```
 
 
-## Filtering out the TP from sample ID's the begin with AST, keeping them on the field samples
+## Separating the "TP" from sample ID's the begin with AST, keeping them on the field samples
 ```{r}
 library(stringr)
 data <- data %>%
   mutate(full_sample_id = ifelse(startsWith(full_sample_id, "AST"), 
                                  gsub("-TP\\d+", "", full_sample_id), 
                                  full_sample_id))
+
+
+data <- data %>%
+  filter(!timepoint=="TP0")
+
+
 ```
 
-## Merging data to include treatment and site from the metadata to the histology abundance and size data
+#calculate the total number of gametes in a sample
 ```{r}
-##merged_data <- merge(data, metadata, by = "full_sample_id")
-##write_csv(merged_data, "../data/merged_data.csv")
+
+data <- data %>%
+rowwise() %>%
+mutate(total.gametes = sum(StageI,StageII,StageIII,StageIV,StageV,na.rm = T))
+
 ```
+
+# assign a value of Stage 0 to samples with no gametes
+#if = if total.gametes = 0, then add a value of 1 to a new column called "Stage0"
+#else = if total.gamates > 0, then add a value of 0 to a new column called "Stage0"
+```{r}
+data <- data %>%
+  mutate(Stage0 = ifelse(total.gametes==0, 1, 0))
+```
+
+#calculate relative abundance of stage by sex, timepoint, treatment
+```{r}
+Rel.Abundance <- data %>%
+  group_by(sex, timepoint, treatment) %>%
+  summarise(
+    total_gametes = sum(total.gametes, na.rm = TRUE),
+    StageI = sum(StageI, na.rm = TRUE),
+    StageII = sum(StageII, na.rm = TRUE),
+    StageIII = sum(StageIII, na.rm = TRUE),
+    StageIV = sum(StageIV, na.rm = TRUE),
+    StageV = sum(StageV, na.rm = TRUE)
+  ) %>%
+  mutate(
+    rel_abundance_StageI = StageI / total_gametes,
+    rel_abundance_StageII = StageII / total_gametes,
+    rel_abundance_StageIII = StageIII / total_gametes,
+    rel_abundance_StageIV = StageIV / total_gametes,
+    rel_abundance_StageV = StageV / total_gametes
+  )
+
+Rel.Abundance <- Rel.Abundance %>%
+  filter(!sex=="NA") %>%
+  filter(!treatment=="NA")
+
+Rel.Abundance_long <- Rel.Abundance %>%
+  pivot_longer(cols = starts_with("rel_abundance_stage"), 
+               names_to = "stage", 
+               values_to = "value") %>%
+  mutate(stage = factor(stage, 
+levels = c("rel_abundance_StageI", "rel_abundance_StageII", "rel_abundance_StageIII", "rel_abundance_StageIV", "rel_abundance_StageV"), 
+                        labels = c("Stage I", "Stage II", "Stage III", "Stage IV", "Stage V")))
+
+```
+
+# add lines of TP0 for both
+
+#separate dataset to experimetnal and field
+```{r}
+
+Rel.Abundance_long_field <- Rel.Abundance_long %>%
+  filter(treatment=="Field")
+
+ggplot(Rel.Abundance_long_field, aes(x = timepoint, y = value, fill = stage)) +
+  geom_bar(stat = "identity", position = "fill") +
+  facet_grid(~ sex) +
+  theme_minimal() +
+  labs(
+    title = "Relative Abundance by Timepoint",
+    x = "Timepoint",
+    y = "Relative Abundance",
+    color = "Stage")+
+  labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
+  theme_bw() +
+  scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                    labels = c( 'Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V'))
+
+
+```
+#separate dataset to experimetnal and field
+
+```{r}
+
+Rel.Abundance_long_tank <- Rel.Abundance_long %>%
+  filter(!treatment=="Field")
+
+ggplot(Rel.Abundance_long_tank, aes(x = timepoint, y = value, fill = stage)) +
+  geom_bar(stat = "identity", position = "fill") +
+  facet_grid(sex ~ treatment) +
+  theme_minimal() +
+  labs(
+    title = "Relative Abundance by Timepoint",
+    x = "Timepoint",
+    y = "Relative Abundance",
+    color = "Stage")+
+  labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
+  theme_bw() +
+  scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                    labels = c( 'Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V'))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+ggplot(Rel.Abundance_long, aes(x = timepoint, y = value, fill = stage)) +
+  geom_bar(stat = "identity", position = "fill") +
+  facet_grid(sex ~ treatment) +
+  theme_minimal() +
+  labs(
+    title = "Relative Abundance by Timepoint",
+    x = "Timepoint",
+    y = "Relative Abundance",
+    color = "Stage")+
+  labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
+  theme_bw() +
+  scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+                    labels = c( 'Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V'))
+```
+
 
 ## Select females
 ```{r}
@@ -59,9 +193,13 @@ data <- data %>%
 Abundance_female <- data %>% 
   filter(sex == "female") 
 
-names(Abundance_female)[2] <- 'timepoint'
-names(Abundance_female)[3] <- 'treatment'
-names(Abundance_female)[4] <- 'date'
+Abundance_female <- Abundance_female %>%
+rowwise() %>%
+mutate(tots = sum(StageI,StageII,StageIII,StageIV,StageV,na.rm = T))
+
+#names(Abundance_female)[2] <- 'timepoint'
+#names(Abundance_female)[3] <- 'treatment'
+#names(Abundance_female)[4] <- 'date'
 ```
 
 
