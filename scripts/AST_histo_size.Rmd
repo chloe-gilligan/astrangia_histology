@@ -1,0 +1,179 @@
+---
+title: "AST_histo_size"
+author: "Chloé Gilligan"
+date: "2024-05-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(readr)
+```
+
+#Reading in data
+```{r}
+Size <- read.csv("../data/astrangia_histology_size.csv", header = T)
+```
+
+#Calculating gemoetric mena and volume
+```{r}
+Size$geo.mean <- sqrt(Size$length*Size$width)
+
+Size$geo.mean.vol <- pi*((Size$geo.mean/2)^2)
+```
+
+# Define standard error function
+```{r}
+std.error <- function(x) {
+  sd(x, na.rm = TRUE) / sqrt(length(na.omit(x)))
+}
+```
+
+# Separate full_sample_id and date
+```{r}
+Size <- Size %>%
+  separate(full_sample_id, into = c("sample_id", "extra"), sep = "-", remove = FALSE) %>%
+  separate(extra, into = c("id", "date"), sep = "-", remove = TRUE) #%>%
+  #unite(full_sample_id, sample_id, id, sep = "-")
+```
+
+
+# Convert date to factors with desired labels
+```{r}
+Size <- Size %>%
+  mutate(date = factor(date, 
+                       levels = c("2/25/21","4/11/21", "4/29/21", "6/4/21", "6/26/21", "7/24/21", "9/2/21"), 
+                       labels = c("February", "Early April", "Late April", "Early June", "Late June", "July", "September")))
+```
+
+#Adding treatment
+```{r}
+Size <- Size %>%
+  mutate(treatment = factor(treatment, levels = c("Field", "Ambient", "High")))
+```
+
+
+# Calculate means and standard errors
+```{r}
+size.means <- Size %>%
+  group_by( date, month, sex, treatment) %>%
+  summarise(
+    gm = mean(geo.mean, na.rm = TRUE), 
+    sem = std.error(geo.mean),
+    n = n(),
+    .groups = 'drop')
+```
+
+# Set factor levels for date and sex
+```{r}
+size.means$treatment <- factor(size.means$treatment, levels = c("field", "ambient", "high"))
+size.means$date <- factor(size.means$date, levels = c("February", "Early April", "Late April", "Early June", "Late June", "July", "September"))
+size.means$sex <- factor(size.means$sex, levels = c("male", "female"))
+```
+
+#Calculating volume means and stard errors
+```{r}
+vol.means <- Size %>%
+  group_by( date, month, sex, treatment) %>%
+  summarise(
+    gm = mean(geo.mean.vol, na.rm = TRUE), 
+    sem = std.error(geo.mean.vol),
+    n = n())
+
+vol.means[vol.means == "NaN"] <- NA
+vol.means$month <- factor(vol.means$month, levels = c("February", "Early April", "Late April", "Early June", "Late June", "July", "September"))
+
+# vol.means$mm3 <- vol.means$gm / 10^9
+```
+
+```{r}
+# Ensure the month variable is a factor with ordered levels
+size.means <- size.means %>%
+  mutate(month = factor(month, levels = c("February", "Early April", "Late April", "Early June", "Late June", "July", "September")))
+```
+
+
+# Create the plot
+```{r}
+# Plot all stages by Timepoint
+size_plot <- ggplot(size.means, aes(x = timepoint, y = value, fill = stage)) +
+  geom_point() +
+  facet_wrap(~ stage)
+
+# Plot stages by Timepoint and Treatment
+stage_trt_plot <- ggplot(size.means, aes(x = timepoint, y = value, fill = stage)) +
+  geom_point() +
+  facet_grid(treatment ~ stage) +
+  scale_fill_manual(
+    values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+    labels = c('Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V')) +
+  theme_bw() +
+  ylab("Microns (µm)") +
+  xlab("Timepoint") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        strip.text.x = element_text(size = 10),
+        strip.text.y = element_text(size = 10),
+        panel.border = element_rect(colour = "black", size = 1),
+        legend.position = "none")
+
+print(size_plot)
+print(stage_trt_plot)
+
+# Save the plots
+#ggsave("output/all_stages_plot.pdf", all_stages_plot, width = 10, height = 6, units = "in")
+#ggsave("output/stage_trt_plot.pdf", stage_trt_plot, width = 10, height = 6, units = "in")
+```
+
+
+
+# Create the plot
+Size.plot <- size.means %>%
+  filter(!is.na(gm)) %>%
+  ggplot(aes(x = month, y = gm, colour = treatment, label = treatment)) +
+  geom_point(aes(), size = 2, position = position_dodge(width = 0.1)) +
+  geom_errorbar(aes(ymin = gm - sem, ymax = gm + sem), width = 0.1, position = position_dodge(width = 0.1)) +
+  scale_color_manual(values = c("coral1", "blue")) +
+  facet_wrap(~ treatment + sex, ncol = 1, scales = "free") +
+  theme_bw() +
+  ylab("Geometric Mean Diameter (µm)") +
+  theme(strip.text.x = element_text(size = 8, colour = "black"),
+        axis.text.x = element_text(angle = 90, hjust = 1),
+        legend.position = "top",
+        axis.title.x = element_blank())
+
+# Print the plot
+Size.plot
+
+```
+
+
+
+
+
+```{r}
+Size.plot <- size.means %>%
+  filter(!is.na(gm)) %>%
+  ggplot(aes(x = month, y = gm, colour = treatment, label = treatment)) +
+  scale_x_discrete(limits = c("February", "Early April", "Late April", "Early June", "Late June", "July", "September")) +
+  geom_point(aes(), size = 2, position = position_dodge(width = 0.1)) +
+  geom_errorbar(aes(ymin = gm - sem, ymax = gm + sem), width = 0.1, position = position_dodge(width = 0.1)) +
+  scale_color_manual(values = c("coral1", "blue")) +
+  facet_wrap(vars(sex, treatment), ncol = 1, scales = "free") +
+  theme_bw() +
+  ylab("Geometric Mean Diameter (µm)") +
+  theme(strip.text.x = element_text(size = 8, colour = "black"),
+        axis.text.x = element_text(angle = 90),
+        legend.position = "top",
+        axis.title.x = element_blank())
+Size.plot
+```
+
+
+
+
+
+
+
+

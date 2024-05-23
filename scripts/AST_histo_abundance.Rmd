@@ -33,7 +33,6 @@ library(ggpubr)
 library(readr)
 data <- read_csv("../data/astrangia_histology_abundance.csv", col_names = TRUE, na = c("", "NA")) %>%
 select(full_sample_id, timepoint, treatment, date, species, month, site,  sex, StageI, StageII, StageIII, StageIV, StageV)
-##metadata <- read_csv("../AST_histology_metadata.csv")
 ```
 
 
@@ -44,12 +43,8 @@ data <- data %>%
   mutate(full_sample_id = ifelse(startsWith(full_sample_id, "AST"), 
                                  gsub("-TP\\d+", "", full_sample_id), 
                                  full_sample_id))
-
-
 data <- data %>%
   filter(!timepoint=="TP0")
-
-
 ```
 
 #calculate the total number of gametes in a sample
@@ -72,7 +67,7 @@ data <- data %>%
 #calculate relative abundance of stage by sex, timepoint, treatment
 ```{r}
 Rel.Abundance <- data %>%
-  group_by(sex, timepoint, treatment) %>%
+  group_by(sex, timepoint, treatment, date) %>%
   summarise(
     total_gametes = sum(total.gametes, na.rm = TRUE),
     StageI = sum(StageI, na.rm = TRUE),
@@ -92,7 +87,10 @@ Rel.Abundance <- data %>%
 Rel.Abundance <- Rel.Abundance %>%
   filter(!sex=="NA") %>%
   filter(!treatment=="NA")
+```
 
+#Pivot longer for plotting
+```{R}
 Rel.Abundance_long <- Rel.Abundance %>%
   pivot_longer(cols = starts_with("rel_abundance_stage"), 
                names_to = "stage", 
@@ -104,37 +102,75 @@ levels = c("rel_abundance_StageI", "rel_abundance_StageII", "rel_abundance_Stage
 ```
 
 # add lines of TP0 for both
-
-#separate dataset to experimetnal and field
+#Creating a seperate dataset and plot for the field samples
 ```{r}
-
 Rel.Abundance_long_field <- Rel.Abundance_long %>%
   filter(treatment=="Field")
+ #mutate(date = as.Date(date, format = "%m/%d/%y"))  # Convert date column to Date type for proper ordering
+```
 
-ggplot(Rel.Abundance_long_field, aes(x = timepoint, y = value, fill = stage)) +
+# Convert the date column to Date type for proper ordering
+```{r}
+#Rel.Abundance_long_field <- Rel.Abundance_long_field %>%
+  #mutate(date = as.Date(date, format = "%m/%d/%y"))
+```
+
+#Reordering dates
+```{r}
+# Reorder dates and relabel timepoints for field samples
+Rel.Abundance_long_field <- Rel.Abundance_long %>%
+  filter(treatment == "Field")%>%
+mutate(date = factor(date, levels = c("4/11/21", "4/29/21", "6/4/21", "6/26/21", "7/24/21", "9/2/21"), labels = c("Early April", "Late April", "Early June", "Late June", "July", "September")))
+
+
+
+```
+
+```{r}
+#Rel.Abundance_long_field <- Rel.Abundance_long_field %>%
+ # mutate(month = case_when(
+   # timepoint == "TP0" ~ "February",
+   # timepoint == "TP1" ~ "March",
+   # timepoint == "TP2" ~ "Early April",
+   # timepoint == "TP3" ~ "Late April",
+   # timepoint == "TP4" ~ "May",
+    #timepoint == "TP5" ~ "June",
+    #timepoint == "TP6" ~ "July",
+    #timepoint == "TP7" ~ "August"
+ # )) %>%
+  #mutate(date = factor(date, levels = c("Early April", "Late April", "Early June", "Late June", "July", "September")))
+```
+
+# Create the plot using date for x-axis labels
+```{r}
+ggplot(Rel.Abundance_long_field, aes(x = date, y = value, fill = stage)) +
   geom_bar(stat = "identity", position = "fill") +
   facet_grid(~ sex) +
   theme_minimal() +
   labs(
-    title = "Relative Abundance by Timepoint",
-    x = "Timepoint",
+    title = "Relative Abundance by Date",
+    x = "Date",
     y = "Relative Abundance",
-    color = "Stage")+
-  labs(y = "Relative Proportion (%)", x = "Timepoint", title = "Relative Proportions of Stages") +
-  theme_bw() +
-  scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
-                    labels = c( 'Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V'))
-
+    color = "Stage"
+  ) +
+  scale_fill_manual(
+    values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+    labels = c('Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V')
+  ) +
+  #scale_x_date(date_labels = "%b %d, %Y", date_breaks = "4 day") +
+  theme_bw()+
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)
+  )
 
 ```
-#separate dataset to experimetnal and field
+#Creating a separate dataset for the experimental data
 
 ```{r}
-
 Rel.Abundance_long_tank <- Rel.Abundance_long %>%
   filter(!treatment=="Field")
 
-ggplot(Rel.Abundance_long_tank, aes(x = timepoint, y = value, fill = stage)) +
+ggplot(Rel.Abundance_long_tank, aes(x = date, y = value, fill = stage)) +
   geom_bar(stat = "identity", position = "fill") +
   facet_grid(sex ~ treatment) +
   theme_minimal() +
@@ -149,28 +185,13 @@ ggplot(Rel.Abundance_long_tank, aes(x = timepoint, y = value, fill = stage)) +
                     labels = c( 'Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V'))
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#Making figure of just TP0
 
 ```{r}
-ggplot(Rel.Abundance_long, aes(x = timepoint, y = value, fill = stage)) +
+Rel.Abundance_long_tank <- Rel.Abundance_long %>%
+  filter(!timepoint=="TP2,TP4,TP5,TP6,TP7")
+
+ggplot(Rel.Abundance_long_tank, aes(x = date, y = value, fill = stage)) +
   geom_bar(stat = "identity", position = "fill") +
   facet_grid(sex ~ treatment) +
   theme_minimal() +
@@ -184,6 +205,19 @@ ggplot(Rel.Abundance_long, aes(x = timepoint, y = value, fill = stage)) +
   scale_fill_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
                     labels = c( 'Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V'))
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## Select females
@@ -201,20 +235,6 @@ mutate(tots = sum(StageI,StageII,StageIII,StageIV,StageV,na.rm = T))
 #names(Abundance_female)[3] <- 'treatment'
 #names(Abundance_female)[4] <- 'date'
 ```
-
-
-#Trying to see if I can do and if else statement and use sum of total gametes
-```{r}
-# Calculate the sum of Stages I-V for each row
-#Abundance_female$sum_stages <- rowSums(Abundance_female[, c("Stage0", StageI", "StageII", "StageIII", "StageIV", "StageV")])
-
-# Create a new column 'Stage' based on the sum
-#Abundance_female$Stage <- ifelse(Abundance_female$sum_stages == 0, 0, "Other")
-
-# Optionally, you can remove the 'sum_stages' column if you don't need it anymore
-#Abundance_female$sum_stages <- NULL
-```
-
 
 ### Calculate relative proportion of each stage 
 ```{r}
@@ -239,43 +259,6 @@ ambient_data <- ambient_data %>%
 
 # Combine the original data with the duplicated data
 Abundance_female <- bind_rows(Abundance_female, ambient_data)
-
-```
-
-
-### Troubleshooting to make if else statement to make Stage 0- not working
-```{r}
-# Find numeric columns with negative values
-#numeric_cols <- sapply(Abundance_female, is.numeric)
-#numeric_data <- Abundance_female[, numeric_cols]
-
-# Replace negative values with 0 for numeric columns only
-#Abundance_female[, numeric_cols] <- apply(numeric_data, 2, function(x) ifelse(x < 0, 0, x))
-
-```
-
-
-### Trying to make Stage 0- not working
-```{r}
-# Create a new column 'Stage' based on the sum of Stages I-V
-#Abundance_female <- Abundance_female %>%
-  #mutate(Stage = ifelse(rowSums(select(., starts_with("Stage"))) < 1, "Stage 0", "Other"))
-
-
-# Calculate the total abundance for each row
-#Abundance_female <- Abundance_female %>%
- # mutate(total_abundance = rowSums(select(., starts_with("rel_prop_stage"))))
-
-# Calculate the relative abundance for each stage
-#Abundance_female <- Abundance_female %>%
-  #mutate_at(vars(starts_with("rel_prop_stage")), ~./total_abundance * 100)
-
-# Calculate the remaining abundance for stage 0
-#Abundance_female <- Abundance_female %>%
-  #mutate(rel_prop_stage0 = 100 - rowSums(select(., starts_with("rel_prop_stage1"):starts_with("rel_prop_stage5"))))
-
-# Replace negative values with 0
-#Abundance_female[Abundance_female < 0] <- 0
 
 ```
 
