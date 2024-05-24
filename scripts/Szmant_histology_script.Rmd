@@ -31,20 +31,20 @@ library(ggpubr)
 ## Reading in data and metadata
 ```{r}
 library(readr)
-data <- read_csv("../data/astrangia_histology_abundance.csv", col_names = TRUE, na = c("", "NA")) %>%
-select(full_sample_id, timepoint, treatment, date, species, month, site,  sex, StageI, StageII, StageIII, StageIV, StageV)
+data <- read_csv("../data/Szmant_Histology_data.csv", col_names = TRUE, na = c("", "NA")) %>%
+select(month,sex, Stage0, StageI, StageII, StageIII, StageIV, StageV)
 ```
 
 
 ## Separating the "TP" from sample ID's the begin with AST, keeping them on the field samples
 ```{r}
 library(stringr)
-data <- data %>%
-  mutate(full_sample_id = ifelse(startsWith(full_sample_id, "AST"), 
-                                 gsub("-TP\\d+", "", full_sample_id), 
-                                 full_sample_id))
-data <- data %>%
-  filter(!timepoint=="TP0")
+#data <- data %>%
+ # mutate(full_sample_id = ifelse(startsWith(full_sample_id, "AST"), 
+                                 #gsub("-TP\\d+", "", full_sample_id), 
+                                 #full_sample_id))
+#data <- data %>%
+  #filter(!timepoint=="TP0")
 ```
 
 #calculate the total number of gametes in a sample
@@ -52,7 +52,7 @@ data <- data %>%
 
 data <- data %>%
 rowwise() %>%
-mutate(total.gametes = sum(StageI,StageII,StageIII,StageIV,StageV,na.rm = T))
+mutate(total.gametes = sum(Stage0,StageI,StageII,StageIII,StageIV,StageV,na.rm = T))
 
 ```
 
@@ -67,9 +67,10 @@ data <- data %>%
 #calculate relative abundance of stage by sex, timepoint, treatment
 ```{r}
 Rel.Abundance <- data %>%
-  group_by(sex, timepoint, treatment, date) %>%
+  group_by(sex, month) %>%
   summarise(
     total_gametes = sum(total.gametes, na.rm = TRUE),
+     Stage0 = sum(StageI, na.rm = TRUE),
     StageI = sum(StageI, na.rm = TRUE),
     StageII = sum(StageII, na.rm = TRUE),
     StageIII = sum(StageIII, na.rm = TRUE),
@@ -77,6 +78,7 @@ Rel.Abundance <- data %>%
     StageV = sum(StageV, na.rm = TRUE)
   ) %>%
   mutate(
+    rel_abundance_Stage0 = StageI / total_gametes,
     rel_abundance_StageI = StageI / total_gametes,
     rel_abundance_StageII = StageII / total_gametes,
     rel_abundance_StageIII = StageIII / total_gametes,
@@ -84,9 +86,9 @@ Rel.Abundance <- data %>%
     rel_abundance_StageV = StageV / total_gametes
   )
 
-Rel.Abundance <- Rel.Abundance %>%
-  filter(!sex=="NA") %>%
-  filter(!treatment=="NA")
+#Rel.Abundance <- Rel.Abundance %>%
+  #filter(!sex=="NA") %>%
+  #filter(!treatment=="NA")
 ```
 
 #Pivot longer for plotting
@@ -96,16 +98,16 @@ Rel.Abundance_long <- Rel.Abundance %>%
                names_to = "stage", 
                values_to = "value") %>%
   mutate(stage = factor(stage, 
-levels = c("rel_abundance_StageI", "rel_abundance_StageII", "rel_abundance_StageIII", "rel_abundance_StageIV", "rel_abundance_StageV"), 
-                        labels = c("Stage I", "Stage II", "Stage III", "Stage IV", "Stage V")))
+levels = c("rel_abundance_Stage0","rel_abundance_StageI", "rel_abundance_StageII", "rel_abundance_StageIII", "rel_abundance_StageIV", "rel_abundance_StageV"), 
+                        labels = c("Stage 0","Stage I", "Stage II", "Stage III", "Stage IV", "Stage V")))
 
 ```
 
 # add lines of TP0 for both
 #Creating a seperate dataset and plot for the field samples
 ```{r}
-Rel.Abundance_long_field <- Rel.Abundance_long %>%
-  filter(treatment=="Field")
+#Rel.Abundance_long_field <- Rel.Abundance_long %>%
+  #filter(treatment=="Field")
  #mutate(date = as.Date(date, format = "%m/%d/%y"))  # Convert date column to Date type for proper ordering
 ```
 
@@ -118,9 +120,9 @@ Rel.Abundance_long_field <- Rel.Abundance_long %>%
 #Reordering dates
 ```{r}
 # Reorder dates and relabel timepoints for field samples
-Rel.Abundance_long_field <- Rel.Abundance_long %>%
-  filter(treatment == "Field")%>%
-mutate(date = factor(date, levels = c("4/11/21", "4/29/21", "6/4/21", "6/26/21", "7/24/21", "9/2/21"), labels = c("Early April", "Late April", "Early June", "Late June", "July", "September")))
+#Rel.Abundance_long_field <- Rel.Abundance_long %>%
+ # filter(treatment == "Field")%>%
+#mutate(date = factor(date, levels = c("4/11/21", "4/29/21", "6/4/21", "6/26/21", "7/24/21", "9/2/21"), labels = c("Early April", "Late April", "Early June", "Late June", "July", "September")))
 
 
 
@@ -143,7 +145,7 @@ mutate(date = factor(date, levels = c("4/11/21", "4/29/21", "6/4/21", "6/26/21",
 
 # Create the plot using date for x-axis labels
 ```{r}
-ggplot(Rel.Abundance_long_field, aes(x = date, y = value, fill = stage)) +
+ggplot(Rel.Abundance_long, aes(x = month, y = value, fill = stage)) +
   geom_bar(stat = "identity", position = "fill") +
   facet_grid(~ sex) +
   theme_minimal() +
@@ -154,8 +156,8 @@ ggplot(Rel.Abundance_long_field, aes(x = date, y = value, fill = stage)) +
     color = "Stage"
   ) +
   scale_fill_manual(
-    values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
-    labels = c('Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V')
+    values = c("#D3D7D5","#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+    labels = c('Stage0','Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V')
   ) +
   #scale_x_date(date_labels = "%b %d, %Y", date_breaks = "4 day") +
   theme_bw()+
