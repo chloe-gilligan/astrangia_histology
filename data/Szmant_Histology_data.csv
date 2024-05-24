@@ -1,15 +1,15 @@
-﻿month,sex,Stage0,StageI,StageII,StageIII,StageIV,StageV,
-Janurary,Female,23.929,28.931,22.931,20.003,0,0,
-Janurary,Male,100,0,0,0,0,0,
-Early April,Female,37.15,38.93,10.363,6.789,0,0,
-Early April,Male,82.864,14.286,0,0,0,0,
-Late April,Female,13.571,47.548,21.476,16.075,0,0,
-Late April,Male,0,78.806,15.004,0,0,0,
-Early June,Female,0,21.833,36.793,34.286,0,4.286,
-Early June,Male,0,34.65,39.286,22.503,0,0,
-Late June,Female,0,7.5,27.502,50.716,0,10.363,
-Late June,Male,0,11.077,32.888,46.077,5.725,3.571,
-July,Female,0,4.301,15.357,42.514,0,37.145,
-July,Male,0,0,8.601,43.585,20.714,26.438,
-August,Female,0,0,10.006,27.145,0,62.571,
-August,Male,0,0,7.152,20.714,14.29,56.929,
+﻿date,month,sex,Stage0,StageI,StageII,StageIII,StageIV,StageV
+1/1/21,January,Female,23.929,28.931,22.931,20.003,0,0
+1/1/21,January,Male,100,0,0,0,0,0
+4/1/21,Early April,Female,37.15,38.93,10.363,6.789,0,0
+4/1/21,Early April,Male,82.864,14.286,0,0,0,0
+4/30/21,Late April,Female,13.571,47.548,21.476,16.075,0,0
+4/30/21,Late April,Male,0,78.806,15.004,0,0,0
+6/1/21,Early June,Female,0,21.833,36.793,34.286,0,4.286
+6/1/21,Early June,Male,0,34.65,39.286,22.503,0,0
+6/29/21,Late June,Female,0,7.5,27.502,50.716,0,10.363
+6/29/21,Late June,Male,0,11.077,32.888,46.077,5.725,3.571
+7/2/21,July,Female,0,4.301,15.357,42.514,0,37.145
+7/2/21,July,Male,0,0,8.601,43.585,20.714,26.438
+8/3/21,August,Female,0,0,10.006,27.145,0,62.571
+8/3/21,August,Male,0,0,7.152,20.714,14.29,56.929
