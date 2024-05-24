@@ -1,0 +1,166 @@
+---
+title: "Szmant_data"
+author: "Chloé Gilligan"
+date: "2024-05-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+This script will analyze gamete abundance in Astrangia poculata over time. The data is separated into 3 treatments (ambient temperature, high temperature, field). 
+
+
+## Installing ggpubr package
+```{r}
+install.packages("ggpubr")
+```
+
+## Load packages 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library("RColorBrewer")
+library(ggpubr)
+```
+
+## Reading in data and metadata
+```{r}
+library(readr)
+data <- read_csv("../data/astrangia_histology_abundance.csv", col_names = TRUE, na = c("", "NA")) %>%
+select(full_sample_id, timepoint, treatment, date, species, month, site,  sex, StageI, StageII, StageIII, StageIV, StageV)
+```
+
+
+## Separating the "TP" from sample ID's the begin with AST, keeping them on the field samples
+```{r}
+library(stringr)
+data <- data %>%
+  mutate(full_sample_id = ifelse(startsWith(full_sample_id, "AST"), 
+                                 gsub("-TP\\d+", "", full_sample_id), 
+                                 full_sample_id))
+data <- data %>%
+  filter(!timepoint=="TP0")
+```
+
+#calculate the total number of gametes in a sample
+```{r}
+
+data <- data %>%
+rowwise() %>%
+mutate(total.gametes = sum(StageI,StageII,StageIII,StageIV,StageV,na.rm = T))
+
+```
+
+# assign a value of Stage 0 to samples with no gametes
+#if = if total.gametes = 0, then add a value of 1 to a new column called "Stage0"
+#else = if total.gamates > 0, then add a value of 0 to a new column called "Stage0"
+```{r}
+data <- data %>%
+  mutate(Stage0 = ifelse(total.gametes==0, 1, 0))
+```
+
+#calculate relative abundance of stage by sex, timepoint, treatment
+```{r}
+Rel.Abundance <- data %>%
+  group_by(sex, timepoint, treatment, date) %>%
+  summarise(
+    total_gametes = sum(total.gametes, na.rm = TRUE),
+    StageI = sum(StageI, na.rm = TRUE),
+    StageII = sum(StageII, na.rm = TRUE),
+    StageIII = sum(StageIII, na.rm = TRUE),
+    StageIV = sum(StageIV, na.rm = TRUE),
+    StageV = sum(StageV, na.rm = TRUE)
+  ) %>%
+  mutate(
+    rel_abundance_StageI = StageI / total_gametes,
+    rel_abundance_StageII = StageII / total_gametes,
+    rel_abundance_StageIII = StageIII / total_gametes,
+    rel_abundance_StageIV = StageIV / total_gametes,
+    rel_abundance_StageV = StageV / total_gametes
+  )
+
+Rel.Abundance <- Rel.Abundance %>%
+  filter(!sex=="NA") %>%
+  filter(!treatment=="NA")
+```
+
+#Pivot longer for plotting
+```{R}
+Rel.Abundance_long <- Rel.Abundance %>%
+  pivot_longer(cols = starts_with("rel_abundance_stage"), 
+               names_to = "stage", 
+               values_to = "value") %>%
+  mutate(stage = factor(stage, 
+levels = c("rel_abundance_StageI", "rel_abundance_StageII", "rel_abundance_StageIII", "rel_abundance_StageIV", "rel_abundance_StageV"), 
+                        labels = c("Stage I", "Stage II", "Stage III", "Stage IV", "Stage V")))
+
+```
+
+# add lines of TP0 for both
+#Creating a seperate dataset and plot for the field samples
+```{r}
+Rel.Abundance_long_field <- Rel.Abundance_long %>%
+  filter(treatment=="Field")
+ #mutate(date = as.Date(date, format = "%m/%d/%y"))  # Convert date column to Date type for proper ordering
+```
+
+# Convert the date column to Date type for proper ordering
+```{r}
+#Rel.Abundance_long_field <- Rel.Abundance_long_field %>%
+  #mutate(date = as.Date(date, format = "%m/%d/%y"))
+```
+
+#Reordering dates
+```{r}
+# Reorder dates and relabel timepoints for field samples
+Rel.Abundance_long_field <- Rel.Abundance_long %>%
+  filter(treatment == "Field")%>%
+mutate(date = factor(date, levels = c("4/11/21", "4/29/21", "6/4/21", "6/26/21", "7/24/21", "9/2/21"), labels = c("Early April", "Late April", "Early June", "Late June", "July", "September")))
+
+
+
+```
+
+```{r}
+#Rel.Abundance_long_field <- Rel.Abundance_long_field %>%
+ # mutate(month = case_when(
+   # timepoint == "TP0" ~ "February",
+   # timepoint == "TP1" ~ "March",
+   # timepoint == "TP2" ~ "Early April",
+   # timepoint == "TP3" ~ "Late April",
+   # timepoint == "TP4" ~ "May",
+    #timepoint == "TP5" ~ "June",
+    #timepoint == "TP6" ~ "July",
+    #timepoint == "TP7" ~ "August"
+ # )) %>%
+  #mutate(date = factor(date, levels = c("Early April", "Late April", "Early June", "Late June", "July", "September")))
+```
+
+# Create the plot using date for x-axis labels
+```{r}
+ggplot(Rel.Abundance_long_field, aes(x = date, y = value, fill = stage)) +
+  geom_bar(stat = "identity", position = "fill") +
+  facet_grid(~ sex) +
+  theme_minimal() +
+  labs(
+    title = "Relative Abundance by Date",
+    x = "Date",
+    y = "Relative Abundance",
+    color = "Stage"
+  ) +
+  scale_fill_manual(
+    values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+    labels = c('Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V')
+  ) +
+  #scale_x_date(date_labels = "%b %d, %Y", date_breaks = "4 day") +
+  theme_bw()+
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)
+  )
+
+```
