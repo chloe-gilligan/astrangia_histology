@@ -11,6 +11,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 library(readr)
+if (!require(gridExtra)) {
+  install.packages("gridExtra")
+  library(gridExtra)
+}
+
 ```
 
 #Reading in data
@@ -20,13 +25,8 @@ Size <- read.csv("../data/astrangia_histology_size.csv", header = T, na.strings 
   filter(treatment %in% c("Ambient", "Heat"))
 ```
 
+
 #Calculating gemoetric mena and volume
-```{r}
-#Size$geo.mean <- sqrt(Size$length*Size$width)
-
-#Size$geo.mean.vol <- pi*((Size$geo.mean/2)^2)
-```
-
 ```{r}
 Size_calc <- Size %>%
   mutate(
@@ -43,47 +43,14 @@ std.error <- function(x) {
 }
 ```
 
-# Separate full_sample_id and date
-```{r}
-#Size <- Size %>%
-  #separate(full_sample_id, into = c("sample_id", "extra"), sep = "-", remove = FALSE) %>%
-  #separate(extra, into = c("id", "date"), sep = "-", remove = TRUE) #%>%
-  #unite(full_sample_id, sample_id, id, sep = "-")
-```
-
-
-# Convert date to factors with desired labels
-```{r}
-#Size <- Size %>%
-  #mutate(date = factor(date, 
-                       #levels = c("2/25/21","4/11/21", "4/29/21", "6/4/21", "6/26/21", "7/24/21", "9/2/21"), 
-                       #labels = c("February", "Early April", "Late April", "Early June", "Late June", "July", "September")))
-```
-
-```{r}
-#Size <- Size %>%
-  #mutate(
-    #date = factor(date, 
-                  #levels = c("2/25/21", "4/11/21", "4/29/21", "6/4/21", "6/26/21", "7/24/21", "9/2/21"), 
-                  #labels = c("February", "Early April", "Late April", "Early June", "Late June", "July", "September")),
-    #treatment = factor(treatment, levels = c("Field", "Ambient", "High"))
- # )
-
-```
-
-
-
-#Adding treatment
-```{r}
-#Size <- Size %>%
-  #mutate(treatment = factor(treatment, levels = c("Field", "Ambient", "High")))
-```
-
+#Fixing dates
 ```{r}
 unique_dates <- unique(Size_calc$date)
 print(unique_dates)
-
+print(length(unique_dates))
 ```
+
+
 
 # Calculate means and standard errors
 ```{r}
@@ -97,31 +64,15 @@ size.means <- Size_calc %>%
     .groups = 'drop'
   ) %>%
   mutate(
-    date = factor(date, labels = c("2/25/21", "4/2/21", "5/28/21", "7/23/21", "8/25/21"))
-  )
+    date = factor(date, labels = c("2/25/21", "4/2/21", "6/2/21", "7/23/21", "8/25/21")))
+
 
 # Ensure sex is treated as a factor
 size.means$sex <- factor(size.means$sex, levels = c("male", "female"))
 
-
 ```
 
-# Calculate means and standard errors
-```{r}
-#size.means <- Size_calc %>%
-#  group_by(date, sex, treatment) %>%
-  #summarise(
-  #  gm = mean(geo.mean, na.rm = TRUE), 
-  #  sem = std.error(geo.mean),
-  #  n = n(),
-   # .groups = 'drop'
- # )
-#size.means[size.means == "NaN"] <- NA
 
-#size.means$date <- factor(size.means$date, c("2/25/21","4/11/21", "4/29/21","6/4/21", "6/26/21","7/24/21", "9/2/21"))
-
-#size.means$sex <- factor(size.means$sex, levels = c("male", "female"))
-```
 
 # Set factor levels for date and sex
 ```{r}
@@ -147,9 +98,15 @@ size.means$sex <- factor(size.means$sex, levels = c("male", "female"))
 
 # Filter data for females
 ```{r}
-size.means_female <- size.means %>% filter(sex == "female")
-```
+#size.means_female <- size.means %>% filter(sex == "female")
 
+#size.means_female <- size.means %>% filter(sex == "female", treatment %in% c("Ambient", "Heat"))
+#size.means_male <- size.means %>% filter(sex == "male", treatment %in% c("Ambient", "Heat"))
+
+size.means_female <- size.means %>% filter(sex == "female", treatment %in% c("Ambient", "Heat"))
+size.means_male <- size.means %>% filter(sex == "male", treatment %in% c("Ambient", "Heat"))
+
+```
 
 
 #Calculating volume means and stard errors
@@ -168,7 +125,7 @@ size.means_female <- size.means %>% filter(sex == "female")
 ```
 
 
-#FIGURE OUT WHAT TO DO WITH VOLUME
+#Volume
 ```{r}
 #vol.means <- Size_calc %>%
  # group_by(date, sex, treatment) %>%
@@ -204,22 +161,44 @@ std.error <- function(x) {
 # Apply the custom function within summarise
 ```
 
-
+#Volume for experimental script- Not working anymore
 ```{r}
-vol.means <- Size_calc %>%
-  group_by(treatment, date, sex) %>%
-  summarise(gm = mean(geo.mean.vol, na.rm = TRUE), 
-            sem = std.error(geo.mean.vol),
-            n = n())
+#vol.means <- Size_calc %>%
+ # group_by(treatment, date, sex) %>%
+ # summarise(gm = mean(geo.mean.vol, na.rm = TRUE), 
+          #  sem = std.error(geo.mean.vol),
+          #  n = n())
 
-vol.means[vol.means == "NaN"] <- NA
+#vol.means[vol.means == "NaN"] <- NA
 
 #vol.means$mm3 <- vol.means$gm/10^9
 
-vol.means$date <- factor(vol.means$date, levels = c("2/25/21","4/11/21", "4/29/21","6/4/21", "6/26/21","7/24/21", "9/2/21"))
+#vol.means$date <- factor(vol.means$date, levels = c("2/25/21", "4/2/21", "6/2/21", "7/23/21", "8/25/21"))
 
 # Check the filtered data
-print(size.means_filtered)
+#print(size.means_filtered)
+
+```
+#Volume for experimental script
+```{r}
+vol.means <- Size_calc %>%
+  group_by(treatment, date, sex) %>%
+  summarise(
+    gm = mean(geo.mean.vol, na.rm = TRUE), 
+    sem = std.error(geo.mean.vol),
+    n = n(),
+    .groups = 'drop'  # This ensures the grouped output is not grouped further
+  ) %>%
+  mutate(
+    gm = ifelse(is.nan(gm), NA, gm),
+    sem = ifelse(is.nan(sem), NA, sem)
+  )
+
+# Ensure date column is treated as a factor with the correct order
+vol.means$date <- factor(vol.means$date, levels = c("2/25/21", "4/2/21", "6/2/21", "7/23/21", "8/25/21"))
+
+# Print the resulting dataframe
+print(vol.means)
 
 ```
 
@@ -251,28 +230,56 @@ vol.means <- Size_calc %>%
 #vol.means[vol.means == "NaN"] <- NA
 
 # Convert date column to factor with desired levels
-vol.means$date <- factor(vol.means$date, levels = c("2021-02-25", "2021-04-11", "2021-04-29", "2021-06-04", "2021-06-26", "2021-07-24", "2021-09-02"))
+vol.means$date <- factor(vol.means$date, levels = c("2021-02-25", "2021-04-02", "2021-06-02", "2021-07-23", "2021-08-25"))
 
 ```
 
+#Plotting Males and Females
+```{r}
+plot_female <- ggplot(size.means_female, aes(x = date, y = gm, shape = treatment, color = treatment)) +
+  geom_point(size = 3) +
+  scale_shape_manual(values = c("Ambient" = 16, "Heat" = 17)) +  # circles for Ambient, triangles for Heat
+  scale_color_manual(values = c("Ambient" = "blue", "Heat" = "red")) +  # blue for Ambient, red for Heat
+  labs(title = "Geometric Mean Diameter for Females",
+       x = "Months",
+       y = "Geometric Mean Diameter",
+       shape = "Treatment",
+       color = "Treatment") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  guides(
+    shape = guide_legend(title = "Treatment"),
+    color = guide_legend(title = "Treatment")
+  ) +
+  scale_y_continuous(breaks = seq(0, max(size.means_female$gm, na.rm = TRUE), by = 10))  # Adjust the 'by' argument to change spacing
 
+```
 
+#Plotting Males
+```{r}
+plot_male <- ggplot(size.means_male, aes(x = date, y = gm, shape = treatment, color = treatment)) +
+  geom_point(size = 3) +
+  scale_shape_manual(values = c("Ambient" = 16, "Heat" = 17)) +  # circles for Ambient, triangles for Heat
+  scale_color_manual(values = c("Ambient" = "blue", "Heat" = "red")) +  # blue for Ambient, red for Heat
+  labs(title = "Geometric Mean Diameter for Males",
+       x = "Months",
+       y = "Geometric Mean Diameter",
+       shape = "Treatment",
+       color = "Treatment") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  guides(
+    shape = guide_legend(title = "Treatment"),
+    color = guide_legend(title = "Treatment")
+  ) +
+  scale_y_continuous(breaks = seq(0, max(size.means_male$gm, na.rm = TRUE), by = 10))  # Adjust the 'by' argument to change spacing
 
-Size.plot <- size.means %>% 
-  filter(!is.na(gm)) %>%
-  ggplot(aes(x=month, y=gm, colour = site, label=site)) +
-  scale_x_discrete(limits = c("January","February", "March","April", "May","June", "July", "August", "September","October",  "November"))+
-  geom_point(aes(),size=2,position=position_dodge(width = 0.1))+
-  geom_errorbar(aes(ymin=gm-sem, ymax=gm+sem), width=.1,position=position_dodge(width = 0.1)) +
-  #geom_text(aes(label = n, y=10, size=2)) +
-  scale_color_manual(values = c("coral1",  "blue"))+
-  facet_wrap("sex", ncol=1, scales = "free")+
-  theme_bw()+
-  ylab("Geometric Mean Diameter (µm)")+
-  theme(strip.text.x = element_text(size = 8, colour = "black"),axis.text.x = element_text(angle = 90), legend.position = "top", axis.title.x=element_blank())
-Size.plot
+```
 
-
+#Putting plots side by side
+```{r}
+grid.arrange(plot_female, plot_male, ncol = 2)
+```
 
 
 
@@ -296,32 +303,39 @@ ggplot(size.means_filtered, aes(x = date, y = gm, shape = treatment, group = tre
 
 ```
 ```{r}
+c
+
+
+```
+```{r}
 # Filter data for females and for only ambient and heat treatments
 size.means_filtered <- size.means %>% 
   filter(sex == "female", treatment %in% c("Ambient", "Heat"))
 
 # Generate the plot
-ggplot(size.means_filtered, aes(x = date, y = gm, shape = treatment, linetype = treatment)) +
+ggplot(size.means_filtered, aes(x = date, y = gm, shape = treatment, color = treatment)) +
   geom_point(size = 3) +
-  geom_line(aes(group = interaction(treatment, date)), size = 1) +  # Add line connecting shapes
   scale_shape_manual(values = c("Ambient" = 16, "Heat" = 17)) +  # circles for Ambient, triangles for Heat
-  scale_linetype_manual(values = c("Ambient" = "solid", "Heat" = "dashed")) +
+  scale_color_manual(values = c("Ambient" = "blue", "Heat" = "red")) +  # blue for Ambient, red for Heat
   labs(title = "Geometric Mean Diameter for Females",
        x = "Months",
        y = "Geometric Mean Diameter",
        shape = "Treatment",
-       linetype = "Treatment") +
+       color = "Treatment") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  # Combine legend for shapes and lines
+  # Combine legend for shapes and colors
   guides(
-    shape = guide_legend(title = "Treatment", override.aes = list(linetype = c("solid", "dashed")))
+    shape = guide_legend(title = "Treatment"),
+    color = guide_legend(title = "Treatment")
   ) +
   # Adjust y-axis ticks and labels
   scale_y_continuous(breaks = seq(0, max(size.means_filtered$gm), by = 10))  # Adjust the 'by' argument to change spacing
 
-
 ```
+
+
+
 
 ```{r}
 # Filter data for females and for only ambient and heat treatments

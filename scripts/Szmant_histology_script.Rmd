@@ -56,7 +56,7 @@ data <- data %>%
 #calculate relative abundance of stage by sex, timepoint, treatment
 ```{r}
 Rel.Abundance <- data %>%
-  group_by(sex, month) %>%
+  group_by(date, sex, month) %>%
   summarise(
     total_gametes = sum(total.gametes, na.rm = TRUE),
      Stage0 = sum(StageI, na.rm = TRUE),
@@ -93,20 +93,29 @@ levels = c("rel_abundance_Stage0","rel_abundance_StageI", "rel_abundance_StageII
 ```
 
 ```{r}
-Rel.Abundance <- Rel.Abundance %>%
-  mutate(month = factor(month, levels = month.name))
+#Rel.Abundance <- Rel.Abundance %>%
+ # mutate(month = factor(month, levels = month.name))%>%
+#mutate(date = factor(date, levels = c("1/1/21", "4/1/21", "4/30/21", "6/1/21", "6/29/21", "7/2/21", "8/3/21"), labels = c("January", "Early #April", "Late April", "Early June", "Late June", "July", "August")))
+
 ```
 
+```{r}
+Rel.Abundance <- Rel.Abundance %>%
+  mutate(month = factor(month, levels = month.name)) %>%
+  mutate(date = factor(date, levels = c("1/1/21", "4/1/21", "4/30/21", "6/1/21", "6/29/21", "7/2/21", "8/3/21"), 
+                       labels = c("January", "Early April", "Late April", "Early June", "Late June", "July", "August")))
+
+```
 
 
 # Create the plot using date for x-axis labels
 ```{r}
-ggplot(Rel.Abundance_long, aes(x = month, y = value, fill = stage)) +
+ggplot(Rel.Abundance_long, aes(x = date, y = value, fill = stage)) +
   geom_bar(stat = "identity", position = "fill") +
   facet_grid(~ sex) +
   theme_minimal() +
   labs(
-    title = "Relative Abundance by Date",
+    title = "Szmant-Froelich et. al Relative Abundance by Date",
     x = "Date",
     y = "Relative Abundance",
     color = "Stage"
@@ -116,7 +125,8 @@ ggplot(Rel.Abundance_long, aes(x = month, y = value, fill = stage)) +
     labels = c('Stage0','Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V')
   ) +
   #scale_x_date(date_labels = "%b %d, %Y", date_breaks = "4 day") +
-  theme_bw()+
+  scale_x_discrete(labels = c("1/1/21" = "January", "4/1/21" = "Early April", "4/30/21" = "Late April", "6/1/21" = "Early June", "6/29/21" = "Late June", "7/2/21" = "July", "8/3/21" = "August")) +
+  theme_bw() +
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)
   )
