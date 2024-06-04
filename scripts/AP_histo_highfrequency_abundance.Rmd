@@ -103,6 +103,38 @@ levels = c("rel_abundance_StageI", "rel_abundance_StageII", "rel_abundance_Stage
  #mutate(date = as.Date(date, format = "%m/%d/%y"))  # Convert date column to Date type for proper ordering
 ```
 
+```{r}
+# Convert date column to Date type for proper ordering
+Rel.Abundance_long$date <- as.Date(Rel.Abundance_long$date, format = "%m/%d/%y")
+
+# Define the desired order of dates
+desired_order <- as.Date(c("7/5/22", "7/14/22", "7/20/22", "7/27/22", "8/3/22", "8/9/22"), format = "%m/%d/%y")
+
+# Reorder the levels of the date factor according to desired_order
+Rel.Abundance_long$date <- factor(Rel.Abundance_long$date, levels = desired_order)
+
+# Create the plot with reordered dates
+ggplot(Rel.Abundance_long, aes(x = date, y = value, fill = stage)) +
+  geom_bar(stat = "identity", position = "fill") +
+  facet_grid(~ sex) +
+  theme_minimal() +
+  labs(
+    title = "Relative Abundance by Date",
+    x = "Date",
+    y = "Relative Abundance",
+    color = "Stage"
+  ) +
+  scale_fill_manual(
+    values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899"),
+    labels = c('Stage I', 'Stage II', 'Stage III', 'Stage IV', 'Stage V')
+  ) +
+  theme_bw()
+
+```
+
+
+
+
 
 # Create the plot using date for x-axis labels
 ```{r}
@@ -124,5 +156,5 @@ ggplot(Rel.Abundance_long, aes(x = date, y = value, fill = stage)) +
   theme_bw()
 
 ```
-```
+
 

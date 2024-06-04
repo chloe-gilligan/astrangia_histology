@@ -27,14 +27,7 @@ print(head(Size))
 
 ```
 
-#Calculating gemoetric mena and volume
-```{r}
-#Size$geo.mean <- sqrt(Size$length*Size$width)
-
-#Size$geo.mean.vol <- pi*((Size$geo.mean/2)^2)
-```
-
-#Calculating gemoetric mena and volume
+#Calculating gemoetric mean and volume
 ```{r}
 Size_calc <- Size %>%
   mutate(
@@ -59,11 +52,34 @@ print(unique_dates)
 print(length(unique_dates))
 ```
 
+#Trying to plot with dates
+```{r}
+size.means <- Size_calc %>%
+  group_by(date, sex, stage, treatment) %>%
+  summarise(
+    gm = mean(geo.mean, na.rm = TRUE), 
+    sem = std.error(geo.mean),
+    n = n(),
+    .groups = 'drop'
+  ) %>%
+  mutate(
+    descriptive_date = factor(date, 
+                              levels = c("4/11/21", "4/29/21", "6/4/21", "6/26/21", "7/24/21", "9/2/21"),
+                              labels = c("Early April", "Late April", "Early June", "Late June", "July", "September"))
+  )
+
+size.means$sex <- factor(size.means$sex, levels = c("male", "female"))
+
+print(size.means)
+
+```
+
+
 # Calculate means and standard errors
 ```{r}
 # Convert date column to factor with desired labels
 size.means <- Size_calc %>%
-  group_by(date, sex, treatment) %>%
+  group_by(date, sex, stage, treatment) %>%
   summarise(
     gm = mean(geo.mean, na.rm = TRUE), 
     sem = std.error(geo.mean),
@@ -93,17 +109,6 @@ print(size.means)
 
 ```
 
-```{r}
-#size.means <- size.means %>%
-  #mutate(
-    #treatment = factor(treatment, levels = c("Field", "Ambient", "High")),
-    #date = factor(date, levels = c("February", "Early April", "Late April", "Early June", "Late June", "July", "September")),
-    #sex = factor(sex, levels = c("male", "female"))
-  #)
-
-#GETTING RID OF FOR ONLY A TEST
-```
-
 # Filter data for females and males
 ```{r}
 size.means_female <- size.means %>% filter(sex == "female", treatment %in% c("Field"))
@@ -111,6 +116,15 @@ size.means_male <- size.means %>% filter(sex == "male", treatment %in% c("Field"
 
 size.means_female <- size.means %>% filter(sex == "female", treatment == "Field")
 size.means_male <- size.means %>% filter(sex == "male", treatment == "Field")
+
+# Ensure sex is treated as a factor
+size.means_female$sex <- factor(size.means_female$sex, levels = c("male", "female"))
+size.means_male$sex <- factor(size.means_male$sex, levels = c("male", "female"))
+
+# Ensure stage is treated as a factor
+size.means_female$stage <- factor(size.means_female$stage)
+size.means_male$stage <- factor(size.means_male$stage)
+
 
 print(size.means_female)
 print(size.means_male)
@@ -134,43 +148,8 @@ print(size.means_male)
 ```
 
 
-#Define a custom standard error function that handles NA values
+#Define a custom standard error function that handles NA values 
 ```{r}
-# Define a custom standard error function that handles NA values
-std.error <- function(x) {
-  n <- sum(!is.na(x))
-  if (n <= 1) {
-    return(NA)
-  } else {
-    return(sd(x, na.rm = TRUE) / sqrt(n))
-  }
-}
-
-# Apply the custom function within summarise
-```
-
-#Volume
-```{r}
-vol.means <- Size_calc %>%
-  group_by(treatment, date, sex) %>%
-  summarise(gm = mean(geo.mean.vol, na.rm = TRUE), 
-            sem = std.error(geo.mean.vol),
-            n = n())
-
-vol.means[vol.means == "NaN"] <- NA
-
-#vol.means$mm3 <- vol.means$gm/10^9
-
-vol.means$date <- factor(vol.means$date, levels = c("4/11/21", "4/29/21","6/4/21", "6/26/21","7/24/21", "9/2/21"))
-
-# Check the filtered data
-print(size.means_filtered)
-
-```
-
-
-```{r}
-# Define a custom standard error function that handles NA values
 std.error <- function(x) {
   n <- sum(!is.na(x))
   if (n <= 1) {
@@ -179,8 +158,15 @@ std.error <- function(x) {
     return(sd(x, na.rm = TRUE) / sqrt(n))
   }}
 
-# Convert date column to Date format
-Size_calc$date <- as.Date(Size_calc$date, format = "%m/%d/%y")
+```
+
+#Volume calculations
+```{r}
+vol.means <- Size_calc %>%
+  group_by(treatment, date, sex) %>%
+  summarise(gm = mean(geo.mean.vol, na.rm = TRUE), 
+            sem = std.error(geo.mean.vol),
+            n = n())
 
 # Apply the custom function within summarise
 vol.means <- Size_calc %>%
@@ -192,13 +178,320 @@ vol.means <- Size_calc %>%
     .groups = 'drop'
   )
 
-# Ensure that any "NaN" values are replaced with NA
-#vol.means[vol.means == "NaN"] <- NA
+vol.means[vol.means == "NaN"] <- NA
+
+#vol.means$mm3 <- vol.means$gm/10^9
+
+vol.means$date <- factor(vol.means$date, levels = c("4/11/21", "4/29/21","6/4/21", "6/26/21","7/24/21", "9/2/21"))
 
 # Convert date column to factor with desired levels
 vol.means$date <- factor(vol.means$date, levels = c("2021-04-11", "2021-04-29", "2021-06-04", "2021-06-26", "2021-07-24", "2021-09-02"))
 
+# Check the filtered data
+print(size.means_filtered)
+
 ```
+
+#Plotting test
+
+```{r}
+# Your provided ggplot code with modifications
+plot_female_stage <- ggplot(size.means_female, aes(x = descriptive_date, y = gm, color = stage)) +
+  geom_point(size = 3, shape = 16) + # shape = 16 ensures circles
+  geom_errorbar(aes(ymin = gm - sem, ymax = gm + sem), width = 0.2) +
+  labs(
+    title = "GMD for Females by Stage",
+    x = "Date",
+    y = "Geometric Mean Diameter(µm)",
+    color = "Stage"
+  ) +
+  scale_color_manual(values = c(
+    "1" = "#CCEEF9",
+    "2" = "#A6E1F4",
+    "3" = "#59C7EB",
+    "4" = "#00A9E0",
+    "5" = "#137899"
+  )) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+print(plot_female_stage)
+
+```
+#Plotting males
+```{r}
+# Your provided ggplot code with modifications for the male plot
+plot_male_stage <- ggplot(size.means_male, aes(x = descriptive_date, y = gm, color = stage)) +
+  geom_point(size = 3, shape = 16) + # shape = 16 ensures circles
+  geom_errorbar(aes(ymin = gm - sem, ymax = gm + sem), width = 0.2) +
+  labs(
+    title = "GMD for Males by Stage",
+    x = "Date",
+    y = "Geometric Mean Diameter (µm)",
+    color = "Stage"
+  ) +
+  scale_color_manual(values = c(
+    "1" = "#CCEEF9",
+    "2" = "#A6E1F4",
+    "3" = "#59C7EB",
+    "4" = "#00A9E0",
+    "5" = "#137899"
+  )) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+print(plot_male_stage)
+```
+
+```{r}
+grid.arrange(plot_female_stage, plot_male_stage, ncol = 2)
+```
+
+
+
+
+
+
+```{r}
+plot_female_stage <- ggplot(size.means_female, aes(x = date, y = gm, shape = stage, color = stage)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = gm - sem, ymax = gm + sem), width = 0.2) +
+  labs(title = "Geometric Mean Diameter for Females by Stage",
+       x = "Date",
+       y = "Geometric Mean Diameter",
+       shape = "Stage",
+       color = "Stage") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+print(plot_female_stage)
+
+```
+
+
+
+
+
+```{r}
+#Plotting test
+plot_stage_female <- ggplot(size.means_female, aes(x = date, y = gm, shape = treatment, color = as.factor(stage), linetype = stage)) +
+  geom_point(size = 3) +
+  geom_line(aes(group = interaction(stage, treatment)), size = 1) + # Add lines connecting points for each stage
+  scale_shape_manual(values = c("Field" = 16)) +
+  scale_color_manual(values = rev(c("#137899", "#00A9E0", "#59C7EB", "#A6E1F4", "#CCEEF9"))) + # Reverse color order for stages
+  scale_linetype_manual(values = c("Stage1" = "solid", "Stage2" = "dashed", "Stage3" = "dotted")) + # Adjust linetypes as needed
+  labs(title = "Geometric Mean Diameter by Stage - Female",
+       x = "Date",
+       y = "Geometric Mean Diameter",
+       shape = "Treatment",
+       color = "Stage",
+       linetype = "Stage") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  guides(
+    shape = guide_legend(title = "Treatment"),
+    color = guide_legend(title = "Stage"),
+    linetype = guide_legend(title = "Stage")
+  )
+
+plot_stage_male <- ggplot(size.means_male, aes(x = date, y = gm, shape = treatment, color = as.factor(stage), linetype = stage)) +
+  geom_point(size = 3) +
+  geom_line(aes(group = interaction(stage, treatment)), size = 1) + # Add lines connecting points for each stage
+  scale_shape_manual(values = c("Field" = 16)) +
+  scale_color_manual(values = rev(c("#137899", "#00A9E0", "#59C7EB", "#A6E1F4", "#CCEEF9"))) + # Reverse color order for stages
+ scale_linetype_manual(values = c("Stage1" = "solid", "Stage2" = "dashed", "Stage3" = "dotted")) + # Adjust linetypes as needed
+  labs(title = "Geometric Mean Diameter by Stage - Male",
+       x = "Date",
+       y = "Geometric Mean Diameter",
+       shape = "Treatment",
+       color = "Stage",
+       linetype = "Stage") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  guides(
+    shape = guide_legend(title = "Treatment"),
+    color = guide_legend(title = "Stage"),
+    linetype = guide_legend(title = "Stage")
+  )
+
+# Print both plots
+print(plot_stage_female)
+print(plot_stage_male)
+
+
+```
+#Plotting males and females together
+```{r}
+# Combine the two plots
+combined_plot <- plot_stage_female / plot_stage_male
+
+# Print the combined plot
+print(combined_plot)
+```
+
+
+
+#Plotting test
+```{r}
+# Plotting test
+plot_stage_female <- ggplot(size.means_female, aes(x = date, y = gm, shape = treatment, color = as.factor(stage), linetype = stage)) +
+  geom_point(size = 3) +
+  geom_line(aes(group = interaction(stage, treatment)), size = 1) + # Add lines connecting points for each stage
+  scale_shape_manual(values = c("Field" = 16)) +
+  scale_color_manual(values = rev(c("#137899", "#00A9E0", "#59C7EB", "#A6E1F4", "#CCEEF9"))) + # Reverse color order for stages
+  scale_linetype_manual(values = c("Stage1" = "solid", "Stage2" = "dashed", "Stage3" = "dotted")) + # Adjust linetypes as needed
+  labs(title = "Geometric Mean Diameter by Stage - Female",
+       x = "Date",
+       y = "Geometric Mean Diameter",
+       color = "Stage",  # Removed shape legend title
+       linetype = "Stage") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  guides(
+    shape = guide_legend(title = "Treatment"),
+    color = guide_legend(title = "Stage"),
+    linetype = guide_legend(title = "Stage")
+  )
+
+plot_stage_male <- ggplot(size.means_male, aes(x = date, y = gm, shape = treatment, color = as.factor(stage), linetype = stage)) +
+  geom_point(size = 3) +
+  geom_line(aes(group = interaction(stage, treatment)), size = 1) + # Add lines connecting points for each stage
+  scale_shape_manual(values = c("Field" = 16)) +
+  scale_color_manual(values = rev(c("#137899", "#00A9E0", "#59C7EB", "#A6E1F4", "#CCEEF9"))) + # Reverse color order for stages
+  scale_linetype_manual(values = c("Stage1" = "solid", "Stage2" = "dashed", "Stage3" = "dotted")) + # Adjust linetypes as needed
+  labs(title = "Geometric Mean Diameter by Stage - Male",
+       x = "Date",
+       y = "Geometric Mean Diameter",
+       color = "Stage",  # Removed shape legend title
+       linetype = "Stage") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  guides(
+    shape = guide_legend(title = "Treatment"),
+    color = guide_legend(title = "Stage"),
+    linetype = guide_legend(title = "Stage")
+  )
+
+# Print both plots
+print(plot_stage_female)
+print(plot_stage_male)
+
+```
+
+
+
+
+
+#Plotting 
+```{r}
+# Check if the number of unique dates is greater than a threshold to determine whether to plot all data or create box and whisker plots
+if (length(unique(size.means_female$date)) > threshold) {
+  plot_stage_female <- ggplot(size.means_female, aes(x = date, y = gm, shape = treatment, color = as.factor(stage), linetype = stage)) +
+    geom_point(size = 3) +
+    geom_line(aes(group = interaction(stage, treatment)), size = 1) + # Add lines connecting points for each stage
+    scale_shape_manual(values = c("Field" = 16)) +
+    scale_color_manual(values = rev(c("#137899", "#00A9E0", "#59C7EB", "#A6E1F4", "#CCEEF9"))) + # Reverse color order for stages
+    scale_linetype_manual(values = c("Stage1" = "solid", "Stage2" = "dashed", "Stage3" = "dotted")) + # Adjust linetypes as needed
+    labs(title = "Geometric Mean Diameter by Stage - Female",
+         x = "Date",
+         y = "Geometric Mean Diameter",
+         shape = "Treatment",
+         color = "Stage",
+         linetype = "Stage") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    guides(
+      shape = guide_legend(title = "Treatment"),
+      color = guide_legend(title = "Stage"),
+      linetype = guide_legend(title = "Stage")
+    )
+} else {
+  plot_stage_female <- ggplot(size.means_female, aes(x = date, y = gm, fill = as.factor(stage))) +
+    geom_boxplot() +
+    labs(title = "Box and Whisker Plot of Geometric Mean Diameter by Stage - Female",
+         x = "Date",
+         y = "Geometric Mean Diameter",
+         fill = "Stage") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+}
+
+# Similarly, create a plot for males
+if (length(unique(size.means_male$date)) > threshold) {
+  plot_stage_male <- ggplot(size.means_male, aes(x = date, y = gm, shape = treatment, color = as.factor(stage), linetype = stage)) +
+    geom_point(size = 3) +
+    geom_line(aes(group = interaction(stage, treatment)), size = 1) + # Add lines connecting points for each stage
+    scale_shape_manual(values = c("Field" = 16)) +
+    scale_color_manual(values = rev(c("#137899", "#00A9E0", "#59C7EB", "#A6E1F4", "#CCEEF9"))) + # Reverse color order for stages
+    scale_linetype_manual(values = c("Stage1" = "solid", "Stage2" = "dashed", "Stage3" = "dotted")) + # Adjust linetypes as needed
+    labs(title = "Geometric Mean Diameter by Stage - Male",
+         x = "Date",
+         y = "Geometric Mean Diameter",
+         shape = "Treatment",
+         color = "Stage",
+         linetype = "Stage") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    guides(
+      shape = guide_legend(title = "Treatment"),
+      color = guide_legend(title = "Stage"),
+      linetype = guide_legend(title = "Stage")
+    )
+} else {
+  plot_stage_male <- ggplot(size.means_male, aes(x = date, y = gm, fill = as.factor(stage))) +
+    geom_boxplot() +
+    labs(title = "Box and Whisker Plot of Geometric Mean Diameter by Stage - Male",
+         x = "Date",
+         y = "Geometric Mean Diameter",
+         fill = "Stage") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+}
+
+# Print both plots
+print(plot_stage_female)
+print(plot_stage_male)
+
+```
+
+
+
+
+
+#Plotting with stages
+```{r}
+plot_stage <- ggplot(size.means_stage, aes(x = date, y = gm, shape = treatment, color = as.factor(stage), linetype = stage)) +
+  geom_point(size = 3) +
+  geom_line(aes(group = interaction(stage, treatment)), size = 1) + # Add lines connecting points for each stage
+  scale_shape_manual(values = c("Field" = 16)) +
+  scale_color_manual(values = c("#137899", "#00A9E0", "#59C7EB", "#A6E1F4", "#CCEEF9")) + # Adjust colors for stages
+  scale_linetype_manual(values = c("Stage1" = "solid", "Stage2" = "dashed", "Stage3" = "dotted")) + # Adjust linetypes as needed
+  labs(title = "Geometric Mean Diameter by Stage",
+       x = "Date",
+       y = "Geometric Mean Diameter",
+       shape = "Treatment",
+       color = "Stage",
+       linetype = "Stage") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  guides(
+    shape = guide_legend(title = "Treatment"),
+    color = guide_legend(title = "Stage"),
+    linetype = guide_legend(title = "Stage")
+  )
+
+print(plot_stage)
+
+```
+
+
+
+
+
 
 #Plotting females
 

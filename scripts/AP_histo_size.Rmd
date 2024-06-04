@@ -23,6 +23,9 @@ if (!require(gridExtra)) {
 Size <- read.csv("../data/AST_HF_histo_size.csv", header = T, na.strings = c("", "NA")) %>% 
   select(full_sample_id, date, sex, stage, length, width) 
   #filter(treatment %in% c("Ambient", "Heat"))
+
+# Convert date column to Date format immediately after reading in data
+Size$date <- as.Date(Size$date, format = "%m/%d/%y")
 ```
 
 
@@ -42,9 +45,78 @@ Size_calc <- Size_calc %>%
 # Remove the outliers
 Size_calc <- Size_calc %>%
   filter(!(sex == "male" & stage == 3 & date == "7/5/22" & geo.mean > 150))
-
 ```
 
+#Filter by female
+```{r}
+#female_size_calc<- Size_calc %>% filter(sex == "female")
+```
+
+#ANOVA troubleshooting
+```{r}
+# Compute the analysis of variance
+#res.aov <- aov(date ~ stage, data = female_size_calc)
+# Summary of the analysis
+#summary(res.aov)
+
+```
+#ANOVA trouble shooting
+```{r}
+# Load required libraries
+#library(tidyverse)
+
+# Assuming you have already read the data into a dataframe named female_size_calc
+
+# Check the structure of the dataframe
+#print(head(female_size_calc))
+
+# Filter out rows with missing values
+#female_size_calc <- female_size_calc %>%
+  #drop_na(geo.mean.vol)
+
+# Ensure each stage has the same number of observations
+#min_obs <- female_size_calc %>%
+  #group_by(stage) %>%
+  #summarise(n = n()) %>%
+  #pull(n) %>%
+  #min()
+
+# Take a subset of each stage to ensure equal number of observations
+#equal_obs_data <- female_size_calc %>%
+  #group_by(stage) %>%
+  #filter(row_number() <= min_obs)
+
+# Perform one-way ANOVA
+#anova_result <- aov(geo.mean.vol ~ stage, data = equal_obs_data)
+
+# Print the ANOVA results
+#print(summary(anova_result))
+
+# Extract p-value from ANOVA result
+#p_value <- summary(anova_result)[[1]]$"Pr(>F)"[1]
+
+# Check for statistical significance
+#alpha <- 0.05
+#if (!is.null(p_value) && p_value < alpha) {
+  #print("There are significant differences in size between stages across dates.")
+  
+  # Convert 'stage' to factor
+  #equal_obs_data$stage <- factor(equal_obs_data$stage)
+
+  # Perform one-way ANOVA
+  #anova_result <- aov(geo.mean.vol ~ stage, data = equal_obs_data)
+  
+  # Perform Tukey's HSD test
+  #tukey_result <- TukeyHSD(anova_result)
+  
+  # Print the Tukey's HSD test results
+  #print(tukey_result)
+#} else {
+#  print("There are no significant differences in size between stages across dates.")
+#}
+
+
+```
 
 # Define standard error function
 ```{r}
@@ -80,36 +152,12 @@ size.means <- Size_calc %>%
 # Remove the sixth row
 size.means <- size.means[-6, ]
 
-
 # Ensure sex is treated as a factor
 size.means$sex <- factor(size.means$sex, levels = c("male", "female"))
 size.means$stage <- factor(size.means$stage)  # New line to treat stage as a factor 
 
 ```
 
-
-
-# Set factor levels for date and sex
-```{r}
-#size.means$treatment <- factor(size.means$treatment, levels = c("field", "ambient", "high"))
-#size.means$date <- factor(size.means$date, levels = c("February", "Early April", "Late April", "Early June", "Late June", "July", "September"))
-#size.means$sex <- factor(size.means$sex, levels = c("male", "female"))
-
-#size.means$date <- factor(size.means$date, levels = c("2/25/21","4/11/21", "4/29/21","6/4/21", "6/26/21","7/24/21", "9/2/21"))
-#size.means$sex <- factor(size.means$sex, levels = c("male", "female"))
-
-```
-
-```{r}
-#size.means <- size.means %>%
-  #mutate(
-    #treatment = factor(treatment, levels = c("Field", "Ambient", "High")),
-    #date = factor(date, levels = c("February", "Early April", "Late April", "Early June", "Late June", "July", "September")),
-    #sex = factor(sex, levels = c("male", "female"))
-  #)
-
-#GETTING RID OF FOR ONLY A TEST
-```
 
 # Filter data for females
 ```{r}
@@ -123,77 +171,6 @@ size.means_male <- size.means %>% filter(sex == "male")
 
 ```
 
-
-#Calculating volume means and stard errors
-```{r}
-#vol.means <- Size %>%
-  #group_by( date, month, sex, treatment) %>%
-  #summarise(
-    #gm = mean(geo.mean.vol, na.rm = TRUE), 
-    #sem = std.error(geo.mean.vol),
-    #n = n())
-
-#vol.means[vol.means == "NaN"] <- NA
-#vol.means$month <- factor(vol.means$month, levels = c("February", "Early April", "Late April", "Early June", "Late June", "July", "September"))
-
-# vol.means$mm3 <- vol.means$gm / 10^9
-```
-
-
-#Volume
-```{r}
-#vol.means <- Size_calc %>%
- # group_by(date, sex, treatment) %>%
- # summarise(
-  #  gm = mean(geo.mean.vol, na.rm = TRUE), 
-   # sem = std.error(geo.mean.vol),
-   # n = n(),
-   # .groups = 'drop'
-#  )
-
-#vol.means <- vol.means %>%
-#  mutate(
-   # date = factor(date, levels = c("February", "Early April", "Late April", "Early June", "Late June", "July", "September"))
- # )
-
-#vol.means <- Size_calc %>%
-  #group_by(treatment, date, sex) %>%
-  #summarise(gm = mean(geo.mean.vol, na.rm=TRUE), 
-            #sem = std.error(geo.mean.vol, na.rm=TRUE),
-            #n=n())
-
-
-# Define a custom standard error function that handles NA values
-std.error <- function(x) {
-  n <- sum(!is.na(x))
-  if (n <= 1) {
-    return(NA)
-  } else {
-    return(sd(x, na.rm = TRUE) / sqrt(n))
-  }
-}
-
-# Apply the custom function within summarise
-```
-
-#Volume for experimental script- Not working anymore
-```{r}
-#vol.means <- Size_calc %>%
- # group_by(treatment, date, sex) %>%
- # summarise(gm = mean(geo.mean.vol, na.rm = TRUE), 
-          #  sem = std.error(geo.mean.vol),
-          #  n = n())
-
-#vol.means[vol.means == "NaN"] <- NA
-
-#vol.means$mm3 <- vol.means$gm/10^9
-
-#vol.means$date <- factor(vol.means$date, levels = c("2/25/21", "4/2/21", "6/2/21", "7/23/21", "8/25/21"))
-
-# Check the filtered data
-#print(size.means_filtered)
-
-```
 #Volume for experimental script
 ```{r}
 vol.means <- Size_calc %>%
@@ -202,19 +179,16 @@ vol.means <- Size_calc %>%
     gm = mean(geo.mean.vol, na.rm = TRUE), 
     sem = std.error(geo.mean.vol),
     n = n(),
-    .groups = 'drop'  # This ensures the grouped output is not grouped further
+    .groups = 'drop'
   ) %>%
   mutate(
     gm = ifelse(is.nan(gm), NA, gm),
     sem = ifelse(is.nan(sem), NA, sem)
   )
 
-# Ensure date column is treated as a factor with the correct order
-vol.means$date <- factor(vol.means$date, levels = c("7/5/22","7/14/21","7/20/22","7/27/22","8/3/22","8/9/22","8/24/22"))
-
-# Print the resulting dataframe
-print(vol.means)
-
+vol.means$date <- factor(vol.means$date, levels = c("7/5/22", "7/14/21", "7/20/22", "7/27/22", "8/3/22", "8/9/22", "8/24/22"))
+# Ensure the date column is treated as a factor with the correct order
+vol.means$date <- factor(vol.means$date, levels = c("2022-07-05", "2022-07-14", "2022-07-20", "2022-07-27", "2022-08-03", "2022-08-09", "2022-08-24"))
 ```
 
 
@@ -231,28 +205,14 @@ std.error <- function(x) {
 # Convert date column to Date format
 Size_calc$date <- as.Date(Size_calc$date, format = "%m/%d/%y")
 
-# Apply the custom function within summarise
-vol.means <- Size_calc %>%
-  group_by(date, sex) %>%
-  summarise(
-    gm = mean(geo.mean.vol, na.rm = TRUE), 
-    sem = std.error(geo.mean.vol),
-    n = n(),
-    .groups = 'drop'
-  )
-
-# Ensure that any "NaN" values are replaced with NA
-#vol.means[vol.means == "NaN"] <- NA
-
-# Convert date column to factor with desired levels
-vol.means$date <- factor(vol.means$date, levels = c("2022-07-05", "2022-07-14", "2022-07-20", "2022-07-27", "2022-08-03", "2022-08-09", "2022-08-24"   ))
 ```
 
-#Plotting test with stages
+#Plotting test 
 ```{r}
 plot_by_stage <- function(data, sex_label) {
   ggplot(data, aes(x = date, y = gm, color = stage)) +
     geom_point(size = 3) +
+    geom_errorbar(aes(ymin = gm - sem, ymax = gm + sem), width = 0.2) +
     labs(title = paste("Geometric Mean Diameter for", sex_label),
          x = "Months",
          y = "Geometric Mean Diameter",
@@ -271,18 +231,20 @@ grid.arrange(plot_female, plot_male, ncol = 2)
 ```
 
 
-
+#Plotting test with stages
 ```{r}
 plot_by_stage <- function(data, sex_label) {
   ggplot(data, aes(x = date, y = gm, color = stage)) +
     geom_point(size = 3) +
+    geom_errorbar(aes(ymin = gm - sem, ymax = gm + sem), width = 0.2) +
     labs(title = paste("Geometric Mean Diameter for", sex_label),
          x = "Months",
          y = "Geometric Mean Diameter",
          color = "Stage") +
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-    scale_y_continuous(breaks = seq(0, max(data$gm, na.rm = TRUE), by = 10))
+    scale_y_continuous(breaks = seq(0, max(data$gm, na.rm = TRUE), by = 10)) +
+    scale_color_manual(values = c("1" = "#CCEEF9", "2" = "#A6E1F4", "3" = "#59C7EB", "4" = "#00A9E0", "5" = "#137899"))
 }
 
 plot_female <- plot_by_stage(size.means_female, "Females")
@@ -290,39 +252,7 @@ plot_male <- plot_by_stage(size.means_male, "Males")
 
 grid.arrange(plot_female, plot_male, ncol = 2)
 
-```
-
-
-
-#Plotting Males and Females
-```{r}
-# Plotting Females
-plot_female <- ggplot(size.means_female, aes(x = date, y = gm)) +
-  geom_point(size = 3, color = "blue") +
-  labs(title = "Geometric Mean Diameter for Females",
-       x = "Months",
-       y = "Geometric Mean Diameter") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_y_continuous(breaks = seq(0, max(size.means_female$gm, na.rm = TRUE), by = 10))  # Adjust the 'by' argument to change spacing
 
 ```
 
-#Plotting Males
-```{r}
 
-# Plotting Males
-plot_male <- ggplot(size.means_male, aes(x = date, y = gm)) +
-  geom_point(size = 3, color = "red") +
-  labs(title = "Geometric Mean Diameter for Males",
-       x = "Months",
-       y = "Geometric Mean Diameter") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_y_continuous(breaks = seq(0, max(size.means_male$gm, na.rm = TRUE), by = 10))  # Adjust the 'by' argument to change spacing
-```
-
-#Putting plots side by side
-```{r}
-grid.arrange(plot_female, plot_male, ncol = 2)
-```

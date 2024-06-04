@@ -23,6 +23,7 @@ if (!require(gridExtra)) {
 Size <- read.csv("../data/astrangia_histology_size.csv", header = T, na.strings = c("", "NA")) %>% 
   select(full_sample_id, timepoint, date, treatment, sex, stage, length, width) %>% 
   filter(treatment %in% c("Ambient", "Heat"))
+
 ```
 
 
@@ -33,6 +34,7 @@ Size_calc <- Size %>%
     geo.mean = sqrt(length * width),
     geo.mean.vol = pi * ((geo.mean / 2) ^ 2)
   )
+
 ```
 
 
@@ -41,6 +43,10 @@ Size_calc <- Size %>%
 std.error <- function(x) {
   sd(x, na.rm = TRUE) / sqrt(length(na.omit(x)))
 }
+
+Size_calc$date <- as.Date(Size_calc$date, format = "%m/%d/%y")
+
+
 ```
 
 #Fixing dates
@@ -56,7 +62,7 @@ print(length(unique_dates))
 ```{r}
 # Convert date column to factor with desired labels
 size.means <- Size_calc %>%
-  group_by(date, sex, treatment) %>%
+  group_by(date, sex, treatment, stage) %>%
   summarise(
     gm = mean(geo.mean, na.rm = TRUE), 
     sem = std.error(geo.mean),
@@ -64,11 +70,14 @@ size.means <- Size_calc %>%
     .groups = 'drop'
   ) %>%
   mutate(
-    date = factor(date, labels = c("2/25/21", "4/2/21", "6/2/21", "7/23/21", "8/25/21")))
+    date = factor(date, labels = c("2/25/21", "4/2/21", "6/2/21", "7/23/21", "8/25/21")),
+    sex = factor(sex, levels = c("male", "female")),
+    stage = factor(stage, levels = 1:5),
+    descriptive_date = factor(date, 
+                              levels = c("2/25/21", "4/2/21", "6/2/21", "7/23/21", "8/25/21"), 
+                              labels = c("Febuary", "Early April", "Early June", "July", "August")))
+  
 
-
-# Ensure sex is treated as a factor
-size.means$sex <- factor(size.means$sex, levels = c("male", "female"))
 
 ```
 
@@ -108,47 +117,8 @@ size.means_male <- size.means %>% filter(sex == "male", treatment %in% c("Ambien
 
 ```
 
-
-#Calculating volume means and stard errors
-```{r}
-#vol.means <- Size %>%
-  #group_by( date, month, sex, treatment) %>%
-  #summarise(
-    #gm = mean(geo.mean.vol, na.rm = TRUE), 
-    #sem = std.error(geo.mean.vol),
-    #n = n())
-
-#vol.means[vol.means == "NaN"] <- NA
-#vol.means$month <- factor(vol.means$month, levels = c("February", "Early April", "Late April", "Early June", "Late June", "July", "September"))
-
-# vol.means$mm3 <- vol.means$gm / 10^9
-```
-
-
-#Volume
-```{r}
-#vol.means <- Size_calc %>%
- # group_by(date, sex, treatment) %>%
- # summarise(
-  #  gm = mean(geo.mean.vol, na.rm = TRUE), 
-   # sem = std.error(geo.mean.vol),
-   # n = n(),
-   # .groups = 'drop'
-#  )
-
-#vol.means <- vol.means %>%
-#  mutate(
-   # date = factor(date, levels = c("February", "Early April", "Late April", "Early June", "Late June", "July", "September"))
- # )
-
-#vol.means <- Size_calc %>%
-  #group_by(treatment, date, sex) %>%
-  #summarise(gm = mean(geo.mean.vol, na.rm=TRUE), 
-            #sem = std.error(geo.mean.vol, na.rm=TRUE),
-            #n=n())
-
-
 # Define a custom standard error function that handles NA values
+```{r}
 std.error <- function(x) {
   n <- sum(!is.na(x))
   if (n <= 1) {
@@ -161,24 +131,6 @@ std.error <- function(x) {
 # Apply the custom function within summarise
 ```
 
-#Volume for experimental script- Not working anymore
-```{r}
-#vol.means <- Size_calc %>%
- # group_by(treatment, date, sex) %>%
- # summarise(gm = mean(geo.mean.vol, na.rm = TRUE), 
-          #  sem = std.error(geo.mean.vol),
-          #  n = n())
-
-#vol.means[vol.means == "NaN"] <- NA
-
-#vol.means$mm3 <- vol.means$gm/10^9
-
-#vol.means$date <- factor(vol.means$date, levels = c("2/25/21", "4/2/21", "6/2/21", "7/23/21", "8/25/21"))
-
-# Check the filtered data
-#print(size.means_filtered)
-
-```
 #Volume for experimental script
 ```{r}
 vol.means <- Size_calc %>%
@@ -196,43 +148,56 @@ vol.means <- Size_calc %>%
 
 # Ensure date column is treated as a factor with the correct order
 vol.means$date <- factor(vol.means$date, levels = c("2/25/21", "4/2/21", "6/2/21", "7/23/21", "8/25/21"))
-
+vol.means$date <- factor(vol.means$date, levels = c("2021-02-25", "2021-04-02", "2021-06-02", "2021-07-23", "2021-08-25"))
 # Print the resulting dataframe
 print(vol.means)
 
 ```
 
 
+
+
+#Plotting females
 ```{r}
-# Define a custom standard error function that handles NA values
-std.error <- function(x) {
-  n <- sum(!is.na(x))
-  if (n <= 1) {
-    return(NA)
-  } else {
-    return(sd(x, na.rm = TRUE) / sqrt(n))
-  }}
-
-# Convert date column to Date format
-Size_calc$date <- as.Date(Size_calc$date, format = "%m/%d/%y")
-
-# Apply the custom function within summarise
-vol.means <- Size_calc %>%
-  group_by(treatment, date, sex) %>%
-  summarise(
-    gm = mean(geo.mean.vol, na.rm = TRUE), 
-    sem = std.error(geo.mean.vol),
-    n = n(),
-    .groups = 'drop'
-  )
-
-# Ensure that any "NaN" values are replaced with NA
-#vol.means[vol.means == "NaN"] <- NA
-
-# Convert date column to factor with desired levels
-vol.means$date <- factor(vol.means$date, levels = c("2021-02-25", "2021-04-02", "2021-06-02", "2021-07-23", "2021-08-25"))
+plot_width <- 20
+plot_female <- ggplot(size.means_female, aes(x = date, y = gm, shape = treatment, color = stage, group = interaction(treatment, stage))) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = gm - sem, ymax = gm + sem), width = 0.2) +
+  scale_shape_manual(values = c("Ambient" = 16, "Heat" = 17)) +  # circles for Ambient, triangles for Heat
+  scale_color_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899")) +  # Custom color scale for stages
+  labs(title = "Geometric Mean Diameter for Females",
+       x = "Date",
+       y = "Geometric Mean Diameter",
+       shape = "Treatment",
+       color = "Stage") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
+
+```{r}
+plot_width <- 20
+plot_male <- ggplot(size.means_male, aes(x = date, y = gm, shape = treatment, color = stage, group = interaction(treatment, stage))) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = gm - sem, ymax = gm + sem), width = 0.2) +
+  scale_shape_manual(values = c("Ambient" = 16, "Heat" = 17)) +  # circles for Ambient, triangles for Heat
+  scale_color_manual(values = c("#CCEEF9", "#A6E1F4", "#59C7EB", "#00A9E0", "#137899")) +  # Custom color scale for stages
+  labs(title = "Geometric Mean Diameter for Males",
+       x = "Date",
+       y = "Geometric Mean Diameter",
+       shape = "Treatment",
+       color = "Stage") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+
+```{r}
+grid.arrange(plot_female, plot_male, ncol = 2)
+```
+
+
 
 #Plotting Males and Females
 ```{r}
@@ -471,47 +436,6 @@ print(stage_trt_plot)
 # Save the plots
 #ggsave("output/all_stages_plot.pdf", all_stages_plot, width = 10, height = 6, units = "in")
 #ggsave("output/stage_trt_plot.pdf", stage_trt_plot, width = 10, height = 6, units = "in")
-```
-
-
-
-# Create the plot
-Size.plot <- size.means %>%
-  filter(!is.na(gm)) %>%
-  ggplot(aes(x = month, y = gm, colour = treatment, label = treatment)) +
-  geom_point(aes(), size = 2, position = position_dodge(width = 0.1)) +
-  geom_errorbar(aes(ymin = gm - sem, ymax = gm + sem), width = 0.1, position = position_dodge(width = 0.1)) +
-  scale_color_manual(values = c("coral1", "blue")) +
-  facet_wrap(~ treatment + sex, ncol = 1, scales = "free") +
-  theme_bw() +
-  ylab("Geometric Mean Diameter (µm)") +
-  theme(strip.text.x = element_text(size = 8, colour = "black"),
-        axis.text.x = element_text(angle = 90, hjust = 1),
-        legend.position = "top",
-        axis.title.x = element_blank())
-
-# Print the plot
-Size.plot
-
-```
-
-
-```{r}
-Size.plot <- size.means %>%
-  filter(!is.na(gm)) %>%
-  ggplot(aes(x = month, y = gm, colour = treatment, label = treatment)) +
-  scale_x_discrete(limits = c("February", "Early April", "Late April", "Early June", "Late June", "July", "September")) +
-  geom_point(aes(), size = 2, position = position_dodge(width = 0.1)) +
-  geom_errorbar(aes(ymin = gm - sem, ymax = gm + sem), width = 0.1, position = position_dodge(width = 0.1)) +
-  scale_color_manual(values = c("coral1", "blue")) +
-  facet_wrap(vars(sex, treatment), ncol = 1, scales = "free") +
-  theme_bw() +
-  ylab("Geometric Mean Diameter (µm)") +
-  theme(strip.text.x = element_text(size = 8, colour = "black"),
-        axis.text.x = element_text(angle = 90),
-        legend.position = "top",
-        axis.title.x = element_blank())
-Size.plot
 ```
 
 
