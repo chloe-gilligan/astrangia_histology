@@ -17,11 +17,7 @@ This script will analyze gamete abundance in Astrangia poculata over time. The d
 ## Installing ggpubr package
 ```{r}
 install.packages("ggpubr")
-```
-
-## Load packages 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+install.packages("tidyverse")
 
 library(tidyverse)
 library("RColorBrewer")
@@ -31,8 +27,13 @@ library(ggpubr)
 ## Reading in data and metadata
 ```{r}
 library(readr)
+##data <- read_csv("../data/astrangia_histology_abundance.csv", col_names = TRUE, na = c("", "NA")) %>%
+##select(full_sample_id, timepoint, treatment, date, species, month, site,  sex, StageI, StageII, StageIII, StageIV, StageV)
+
 data <- read_csv("../data/astrangia_histology_abundance.csv", col_names = TRUE, na = c("", "NA")) %>%
-select(full_sample_id, timepoint, treatment, date, species, month, site,  sex, StageI, StageII, StageIII, StageIV, StageV)
+  select(full_sample_id, timepoint, treatment, date, species, month, site, sex, StageI, StageII, StageIII, StageIV, StageV)
+
+
 ```
 
 
@@ -92,7 +93,7 @@ Rel.Abundance <- Rel.Abundance %>%
 #Pivot longer for plotting
 ```{R}
 Rel.Abundance_long <- Rel.Abundance %>%
-  pivot_longer(cols = starts_with("rel_abundance_stage"), 
+ pivot_longer(cols = starts_with("rel_abundance_Stage"), 
                names_to = "stage", 
                values_to = "value") %>%
   mutate(stage = factor(stage, 
@@ -109,6 +110,7 @@ Rel.Abundance_long_field <- Rel.Abundance_long %>%
  #mutate(date = as.Date(date, format = "%m/%d/%y"))  # Convert date column to Date type for proper ordering
 ```
 
+
 # Convert the date column to Date type for proper ordering
 ```{r}
 #Rel.Abundance_long_field <- Rel.Abundance_long_field %>%
@@ -119,8 +121,11 @@ Rel.Abundance_long_field <- Rel.Abundance_long %>%
 ```{r}
 # Reorder dates and relabel timepoints for field samples
 Rel.Abundance_long_field <- Rel.Abundance_long %>%
-  filter(treatment == "Field")%>%
-mutate(date = factor(date, levels = c("4/11/21", "4/29/21", "6/4/21", "6/26/21", "7/24/21", "9/2/21"), labels = c("Early April", "Late April", "Early June", "Late June", "July", "September")))
+  filter(treatment == "Field") %>%
+  mutate(date = factor(date, 
+    levels = c("4/11/21", "4/29/21", "6/4/21", "6/26/21", "7/24/21", "9/2/21"), 
+    labels = c("Early April", "Late April", "Early June", "Late June", "July", "September")))
+
 
 
 
@@ -209,10 +214,284 @@ ggplot(Rel.Abundance_long_tank, aes(x = date, y = value, fill = stage)) +
 
 
 
+##Trying out stats for biostats project
+```{r}
+str(Rel.Abundance_long_field)
+head(Rel.Abundance_long_field)
+colnames(Rel.Abundance_long_field)
+
+stage_averages <- Rel.Abundance_long_field %>%
+  group_by(sex, timepoint, date, stage) %>%
+  summarise(mean_abundance = mean(value, na.rm = TRUE),
+            sd_abundance = sd(value, na.rm = TRUE),
+            n = n(),
+            se_abundance = sd_abundance / sqrt(n))
+```
+#Average across all dates for each stage 
+```{r}
+stage_averages_AST_field <- Rel.Abundance_long_field %>%
+  group_by(sex, timepoint, stage, date) %>%
+  summarise(
+    mean_abundance = mean(value, na.rm = TRUE)
+    #sd_abundance = sd(value, na.rm = TRUE)
+    #n = n(),
+    #se_abundance = sd_abundance / sqrt(n)
+  )
+```
+```{r}
+ #Linear model
+lat.mod3 <- lm(mean_abundance ~ sex * stage * timepoint, data = stage_averages_AST_field)
+library(car)
+
+# Type III ANOVA
+Anova(lat.mod3, type = 3)
+
+```
+```{r}
+lat.mod3 <- lm(mean_abundance ~ sex * stage * timepoint, data = stage_averages_AST_field)
+
+# Create QQ plot for residuals of the model
+qqnorm(residuals(lat.mod3))
+qqline(residuals(lat.mod3), col = "red") 
+
+
+#Next time try response variable not residuals
+```
+
+
+```{r}
+# Stage I
+model_I <- lm(value ~ sex + date, data = filter(Rel.Abundance_long_field, stage == "Stage I"))
+Anova(model_I, type = 3)
+
+# Stage II
+model_II <- lm(value ~ sex + date, data = filter(Rel.Abundance_long_field, stage == "Stage II"))
+Anova(model_II, type = 3)
+
+# Stage III
+model_III <- lm(value ~ sex + date, data = filter(Rel.Abundance_long_field, stage == "Stage III"))
+Anova(model_III, type = 3)
+
+# Stage IV
+model_IV <- lm(value ~ sex + date, data = filter(Rel.Abundance_long_field, stage == "Stage IV"))
+Anova(model_IV, type = 3)
+
+# Stage V
+model_V <- lm(value ~ sex + date, data = filter(Rel.Abundance_long_field, stage == "Stage V"))
+Anova(model_V, type = 3)
+```
+
+
+#post-hoc test
+```{r}
+library(emmeans)
+
+# Stage II
+model_stageII <- lm(value ~ sex + date, data = filter(Rel.Abundance_long_field, stage == "Stage II"))
+emmeans(model_stageII, pairwise ~ date)
+
+# Stage IV
+model_stageIV <- lm(value ~ sex + date, data = filter(Rel.Abundance_long_field, stage == "Stage IV"))
+emmeans(model_stageIV, pairwise ~ date)
+```
+
+
+#Doing stats for tanks and experimental samples
+
+```{r}
+stage_averages_AST_tank <- Rel.Abundance_long_tank %>%
+  group_by(sex, timepoint, stage, date, treatment) %>% 
+  summarise(
+    mean_abundance = mean(value, na.rm = TRUE),
+    sd_abundance = sd(value, na.rm = TRUE),
+    n = n(),
+    se_abundance = sd_abundance / sqrt(n)
+  )
+```
 
 
 
 
+
+
+
+#Stats done here for now
+
+
+```{r}
+df_avg <- df %>%
+  mutate(
+    total = StageI + StageII + StageIII + StageIV + StageV,
+    avg_stage = (StageI*1 + StageII*2 + StageIII*3 + StageIV*4 + StageV*5) / total
+  )
+```
+
+
+
+```{r}
+library(tidyverse)
+
+data <- read_csv("../data/astrangia_histology_abundance.csv", na = c("", "NA")) %>%
+  select(full_sample_id, timepoint, treatment, date, species, month, site, sex,
+         StageI, StageII, StageIII, StageIV, StageV) %>%
+  mutate(
+    full_sample_id = ifelse(startsWith(full_sample_id, "AST"),
+                            gsub("-TP\\d+", "", full_sample_id),
+                            full_sample_id),
+    timepoint = as.factor(timepoint),
+    treatment = as.factor(treatment),
+    sex = as.factor(sex)
+  ) %>%
+  filter(timepoint != "TP0")
+#Filtering out TP0 to figure out impacts post beginning of expirment
+
+```
+
+
+```{r}
+library(lme4)
+
+Rel.Abundance <- data %>%
+  group_by( sex, timepoint, treatment, date) %>%
+  summarise(
+    total_gametes = sum(total.gametes, na.rm = TRUE),
+    StageI = sum(StageI, na.rm = TRUE),
+    StageII = sum(StageII, na.rm = TRUE),
+    StageIII = sum(StageIII, na.rm = TRUE),
+    StageIV = sum(StageIV, na.rm = TRUE),
+    StageV = sum(StageV, na.rm = TRUE)
+  ) %>%
+  mutate(
+    rel_abundance_StageI = StageI / total_gametes,
+    rel_abundance_StageII = StageII / total_gametes,
+    rel_abundance_StageIII = StageIII / total_gametes,
+    rel_abundance_StageIV = StageIV / total_gametes,
+    rel_abundance_StageV = StageV / total_gametes
+  )
+
+model_all_stages <- lmer(
+  value ~ stage * treatment * timepoint * sex, 
+  data = Rel.Abundance_long
+)
+
+summary(model_all_stages)
+
+```
+
+
+# Simplified glm?
+```{r}
+glmmTMB(value ~ stage * treatment * timepoint + sex, family = beta_family(), data = Rel.Abundance_long)
+
+```
+
+#lmer
+```{r}
+library(lme4)
+
+model <- lmer(response ~ fixed_effects + (random_effects | grouping_factor), data = your_data)
+
+
+
+```
+
+
+
+```{r}
+install.packages("glmmTMB")
+library(glmmTMB)
+
+# Remove zeros and ones if necessary (beta regression doesn't like exact 0 or 1)
+Rel.Abundance_long <- Rel.Abundance_long %>%
+  filter(value > 0 & value < 1)
+
+# Fit the model
+mod_all_stages <- glmmTMB(
+  value ~ stage * treatment * timepoint * sex,
+  data = Rel.Abundance_long,
+  family = beta_family(link = "logit")
+)
+
+summary(mod_all_stages)
+```
+
+
+# Simplified glm?
+```{r}
+glmmTMB(value ~ stage * treatment * timepoint + sex, family = beta_family(), data = Rel.Abundance_long)
+
+```
+
+
+```{r}
+library(tidyverse)
+
+data <- read_csv("astrangia_histology_abundance.csv")
+
+
+data_clean <- data %>%
+  filter(!is.na(sex), !is.na(treatment)) %>%
+  mutate(sex = factor(sex),
+         treatment = factor(treatment))
+
+
+data_long <- data_clean %>%
+  pivot_longer(
+    cols = starts_with("Stage"),
+    names_to = "Stage",
+    values_to = "Count"
+  ) %>%
+  filter(!is.na(Count))
+
+
+glm_stage1 <- glm(Count ~ treatment * sex, 
+                  data = filter(data_long, Stage == "StageI"), 
+                  family = poisson)
+summary(glm_stage1)
+
+library(lme4)
+mixed_model <- glmer(Count ~ treatment * sex * Stage + (1|full_sample_id), 
+                     data = data_long, family = poisson)
+summary(mixed_model)
+
+```
+
+
+
+```{r}
+library(tidyverse)
+library(RColorBrewer)
+library(ggpubr)
+library(lme4)
+library(lmerTest)
+library(emmeans)
+
+# Load and clean data (modified from your code)
+data <- read_csv("astrangia_histology_abundance.csv", 
+                na = c("", "NA")) %>%
+  select(full_sample_id, timepoint, treatment, date, species, 
+         month, site, sex, StageI, StageII, StageIII, StageIV, StageV) %>%
+  filter(!is.na(sex), !is.na(treatment)) %>%
+  mutate(sex = factor(sex),
+         treatment = factor(treatment),
+         month = recode(month, "Juy" = "July"))
+
+long_data <- data %>%
+  pivot_longer(cols = starts_with("Stage"),
+               names_to = "Stage",
+               values_to = "Count") %>%
+  filter(!is.na(Count))
+
+# Mixed effects model (accounts for repeated measures)
+stage_model <- glmer(Count ~ treatment * sex * Stage + (1|full_sample_id),
+                    family = poisson,
+                    data = long_data)
+
+# Model summary and significance
+summary(stage_model)
+car::Anova(stage_model, type = 3)
+
+```
 
 
 

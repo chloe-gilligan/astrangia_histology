@@ -16,6 +16,351 @@ if (!require(gridExtra)) {
 }
 
 ```
+#Cleaned up script
+```{r}
+# Load libraries
+library(tidyverse)
+library(gridExtra)
+library(grid)
+
+# Read and filter data
+Size <- read.csv("../data/astrangia_histology_size.csv", header = TRUE, na.strings = c("", "NA")) %>%
+  select(full_sample_id, timepoint, date, treatment, sex, stage, length, width) %>%
+  filter(treatment == "Field")
+```
+
+```{r}
+# Calculate geometric mean and volume
+Size_calc <- Size %>%
+  mutate(
+    geo.mean = sqrt(length * width),
+    geo.mean.vol = pi * ((geo.mean / 2) ^ 2)
+  )
+```
+
+```{r}
+# Standard error function
+std.error <- function(x) {
+  n <- sum(!is.na(x))
+  if (n <= 1) NA else sd(x, na.rm = TRUE) / sqrt(n)
+}
+
+# Calculate group means and SEs
+size.means <- Size_calc %>%
+  group_by(date, sex, stage, treatment) %>%
+  summarise(
+    gm = mean(geo.mean, na.rm = TRUE),
+    sem = std.error(geo.mean),
+    n = n(),
+    .groups = 'drop'
+  ) %>%
+  mutate(
+    descriptive_date = factor(date,
+      levels = c("4/11/21", "4/29/21", "6/4/21", "6/26/21", "7/24/21", "9/2/21"),
+      labels = c("Early April", "Late April", "Early June", "Late June", "July", "September")
+    ),
+    sex = factor(sex, levels = c("male", "female")),
+    stage = as.factor(stage)
+  )
+```
+
+```{r}
+# Split by sex
+size.means_female <- filter(size.means, sex == "female")
+size.means_male <- filter(size.means, sex == "male")
+
+# Color palette
+stage_colors <- c(
+  "1" = "#CCEEF9",
+  "2" = "#A6E1F4",
+  "3" = "#59C7EB",
+  "4" = "#00A9E0",
+  "5" = "#137899"
+)
+```
+
+```{r}
+# Plot for females
+plot_female_stage <- ggplot(size.means_female, aes(x = descriptive_date, y = gm, color = stage)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = gm - sem, ymax = gm + sem), width = 0.2) +
+  labs(
+    title = "Female",
+    x = "Date",
+    y = "GMD (µm)",
+    color = "Stage"
+  ) +
+  scale_color_manual(values = stage_colors) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+# Plot for males
+plot_male_stage <- ggplot(size.means_male, aes(x = descriptive_date, y = gm, color = stage)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = gm - sem, ymax = gm + sem), width = 0.2) +
+  labs(
+    title = "Male",
+    x = "Date",
+    y = "GMD (µm)",
+    color = "Stage"
+  ) +
+  scale_color_manual(values = stage_colors) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+# Arrange with spacing
+grid.arrange(
+  plot_female_stage,
+  plot_male_stage,
+  ncol = 2,
+  widths = c(1, 1),
+  top = textGrob("Geometric Mean Diameter by Stage (Females vs. Males)", gp = gpar(fontsize = 16, fontface = "bold")),
+  padding = unit(1, "lines")
+)
+```
+
+#Stats work
+
+
+```{r}
+xtabs(~ sex + stage + date, data = Size_calc)
+```
+
+```{r}
+Size_calc <- Size_calc %>%
+  mutate(date_group = case_when(
+    date %in% c("4/11/21", "4/29/21") ~ "April",
+    date %in% c("6/4/21", "6/26/21") ~ "June",
+    date == "7/24/21" ~ "July",
+    date == "9/2/21" ~ "September"
+  ),
+  date_group = factor(date_group, levels = c("April", "June", "July", "September")))
+```
+
+```{r}
+#Filtering dataset
+Size_clean <- Size_calc %>%
+  filter(!is.na(sex), stage != 0)
+
+#Fit the model
+lm_model <- lm(geo.mean ~ stage * sex + date, data = Size_clean)
+
+# Type III ANOVA
+library(car)
+Anova(lm_model, type = "III")
+```
+```{r}
+qqnorm(residuals(lm_model))
+qqline(residuals(lm_model), col = "blue")
+```
+
+
+#Success!
+```{r}
+library(dplyr)
+
+
+
+# Calculate mean size per sex and stage
+stage_means <- Size_clean %>%
+  group_by(sex, stage) %>%
+  summarise(avg_size = mean(geo.mean, na.rm = TRUE), .groups = "drop") %>%
+  arrange(sex, stage)
+
+# Calculate percent change and absolute difference between consecutive stages
+growth_by_stage <- stage_means %>%
+  group_by(sex) %>%
+  mutate(
+    pct_change = (avg_size - lag(avg_size)) / lag(avg_size) * 100,
+    abs_change = avg_size - lag(avg_size),
+    from_stage = lag(stage),
+    to_stage = stage
+  ) %>%
+  filter(!is.na(pct_change)) %>%
+  arrange(sex, desc(pct_change))  # sort by largest growth
+
+growth_by_stage
+```
+#Success!
+```{r}
+# Load emmeans package for post-hoc comparisons
+library(emmeans)
+
+# Use the model you already fit
+lm_model <- lm(geo.mean ~ stage * sex + date, data = Size_clean)
+
+# Pairwise comparisons between stages, separately by sex
+emmeans_stage <- emmeans(lm_model, ~ stage | sex)
+
+# Compare consecutive stages (e.g., 1 vs 2, 2 vs 3, etc.)
+pairs(emmeans_stage, adjust = "tukey")
+```
+
+
+
+
+
+
+#Stuff that did not work stats
+
+```{r}
+library(car)
+
+# Ensure factors are treated correctly
+Size_calc <- Size_calc %>%
+  mutate(
+    stage = as.factor(stage),
+    sex = as.factor(sex),
+    date = as.factor(date)
+  )
+
+# Linear model with interaction
+
+
+lm_model1 <- lm(geo.mean ~ stage + sex + date + stage:sex + stage:date, data = Size_calc)
+Anova(lm_model1, type = "III")
+
+lm_model2 <- lm(geo.mean ~ stage * sex * date, data = Size_calc)
+Anova(lm_model2, type = "III")
+```
+
+
+
+```{r}
+size_stage_means <- Size_calc %>%
+  group_by(sex, date, stage) %>%
+  summarise(avg_size = mean(geo.mean, na.rm = TRUE), .groups = "drop") %>%
+  arrange(sex, date, stage)
+
+# Compute percent change between consecutive stages
+size_pct_change <- size_stage_means %>%
+  group_by(sex, date) %>%
+  mutate(
+    pct_change = (avg_size - lag(avg_size)) / lag(avg_size) * 100,
+    stage_diff = stage - lag(stage)
+  ) %>%
+  filter(!is.na(pct_change) & stage_diff == 1)
+```
+
+```{r}
+lm_model <- lm(pct_change ~ sex * date, data = size_pct_change)
+summary(lm_model)
+```
+
+```{r}
+library(car)
+Anova(lm_model, type = "III")
+```
+
+
+
+```{r}
+# Ensure stage is numeric for calculation
+Size_calc <- Size_calc %>% mutate(stage = as.numeric(stage))
+
+size_pct_change <- Size_calc %>%
+  group_by(sex, date) %>%
+  arrange(stage, .by_group = TRUE) %>%
+  summarise(
+    avg_size = mean(geo.mean, na.rm = TRUE),
+    stage = stage,
+    .groups = "drop_last"
+  ) %>%
+  mutate(
+    pct_change = (avg_size - lag(avg_size)) / lag(avg_size) * 100,
+    stage_diff = stage - lag(stage)
+  ) %>%
+  filter(!is.na(pct_change) & stage_diff == 1)
+
+lm_model <- lm(pct_change ~ sex * date, data = size_pct_change)
+summary(lm_model)
+
+lm_model <- lm(pct_change ~ sex * stage_diff * date, data = size_pct_change)
+
+library(car)
+Anova(lm_model, type = "III")
+
+
+```
+
+
+```{r}
+# Calculate the average size (geo.mean) for each stage, date, and sex
+size_means <- Size_calc %>%
+  group_by(sex, stage, date) %>%
+  summarise(avg_size = mean(geo.mean, na.rm = TRUE), .groups = "drop")
+```
+
+```{r}
+# Step 1: Calculate percent change and create 'stage_diff'
+size_pct_change <- size_means %>%
+  arrange(sex, date, stage) %>%
+  group_by(sex, date) %>%
+  mutate(
+    pct_change = (avg_size - lag(avg_size)) / lag(avg_size) * 100,
+    stage_diff = stage - lag(stage)  # This identifies the consecutive stage transitions
+  ) %>%
+  filter(!is.na(pct_change) & stage_diff == 1)  # Only include consecutive stage transitions
+
+# Step 2: Run Type III ANOVA (with 'stage_diff')
+anova_model_simple <- aov(pct_change ~ sex * stage_diff * date, data = size_pct_change)
+
+# Step 3: Perform Type III ANOVA using the 'Anova' function from the 'car' package
+library(car)  # Make sure 'car' package is loaded
+anova_model_simple <- aov(pct_change ~ sex * stage_diff + date, data = size_pct_change)
+Anova(anova_model_simple, type = "III")
+```
+
+
+
+
+
+
+
+
+
+```{r}
+size.pctchange <- size.means %>%
+  arrange(sex, date, treatment, as.numeric(as.character(stage))) %>%  # Ensure stage is numeric for ordering
+  group_by(sex, date, treatment) %>%
+  mutate(
+    pct_change = (gm - lag(gm)) / lag(gm) * 100
+  ) %>%
+  ungroup()
+```
+
+```{r}
+lm_simple <- lm(pct_change ~ sex + stage, data = size.pctchange)
+anova(lm_simple)
+summary(lm_simple)
+```
+```{r}
+install.packages("car")
+library(car)
+```
+
+```{r}
+model_type3 <- lm(pct_change ~ sex + stage + date, data = size.pctchange)
+
+Anova(model_type3, type = "III")
+```
+
+
+```{r}
+lm(pct_change ~ sex + stage + date, data = size.pctchange)
+model_time <- lm(pct_change ~ sex + stage + date, data = size.pctchange)
+summary(model_time)
+anova(model_time)
+```
+
+
+##Below here was the creation/ draft
 
 #Reading in data
 ```{r}
